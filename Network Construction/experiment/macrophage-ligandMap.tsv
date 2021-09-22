@@ -1,0 +1,20 @@
+source	target	direction	stimulation	inhibition	sources
+Ligand_GC	P04150	1	1	0	Glucocorticoid receptor
+Ligand_IC	P08637	1	1	0	Immune complexes may activate FC receptors
+Ligand_IC	P12318	1	1	0	Immune complexes may activate FC receptors
+Ligand_IFNb	P17181	1	1	0	Interferon alpha/beta receptor 1&2
+Ligand_IFNb	P48551	1	1	0	Interferon alpha/beta receptor 1&2
+Ligand_IFNg	P15260	1	1	0	Interferon gamma receptor 1&2
+Ligand_IFNg	P38484	1	1	0	Interferon gamma receptor 1&2
+Ligand_IL4	P24394	1	1	0	Interleukin-4 receptor  
+Ligand_IL10	Q13651	1	1	0	Interleukin-10 receptor subunit alpha
+Ligand_IL13	P78552	1	1	0	Interleukin-13 receptor subunit alpha-1&2
+Ligand_P3C	O60603	1	1	0	P3C activates TLR1 & 2
+Ligand_PGE2	P43115	1	1	0	PGE2 activates PTGER1-2
+Ligand_LPSc	O60603	1	1	0	LPS-PG activates cells through TLR4, the TLR2 activity of LPS-PG is ascribed to a contaminant lipoprotein
+Ligand_LPSc	O00206	1	1	0	LPS-PG activates cells through TLR4, the TLR2 activity of LPS-PG is ascribed to a contaminant lipoprotein
+Ligand_LPSc	P08571	1	1	0	CD14 binds bacterial lipopolysaccharide
+Ligand_TNFa	P19438	1	1	0	Tumor necrosis factor activates receptor 1 A and B
+Ligand_TNFa	P20333	1	1	0	Tumor necrosis factor activates receptor 1 A and B
+Ligand_upLPS	O00206	1	1	0	Ultrapure LPS only activates TLR4 (uniprot also mentions CD14 and LBP bind to lipopolysaccharide (P08571+P18428))
+Ligand_upLPS	P08571	1	1	0	CD14 binds bacterial lipopolysaccharide

@@ -1,0 +1,20 @@
+Source	Target	Note
+Ligand_GC	P04150	Glucocorticoid receptor
+Ligand_IC	P08637	Immune complexes may activate FC receptors
+Ligand_IC	P12318	Immune complexes may activate FC receptors
+Ligand_IFNb	P17181	Interferon alpha/beta receptor 1&2
+Ligand_IFNb	P48551	Interferon alpha/beta receptor 1&2
+Ligand_IFNg	P15260	Interferon gamma receptor 1&2
+Ligand_IFNg	P38484	Interferon gamma receptor 1&2
+Ligand_IL4	P24394	Interleukin-4 receptor  
+Ligand_IL10	Q13651	Interleukin-10 receptor subunit alpha
+Ligand_IL13	P78552	Interleukin-13 receptor subunit alpha-1&2
+Ligand_P3C	O60603	P3C activates TLR1 & 2
+Ligand_PGE2	P43115	PGE2 activates PTGER1-2
+Ligand_LPSc	O60603	LPS-PG activates cells through TLR4, the TLR2 activity of LPS-PG is ascribed to a contaminant lipoprotein
+Ligand_LPSc	O00206	LPS-PG activates cells through TLR4, the TLR2 activity of LPS-PG is ascribed to a contaminant lipoprotein
+Ligand_LPSc	P08571	CD14 binds bacterial lipopolysaccharide
+Ligand_TNFa	P19438	Tumor necrosis factor activates receptor 1 A and B
+Ligand_TNFa	P20333	Tumor necrosis factor activates receptor 1 A and B
+Ligand_upLPS	O00206	Ultrapure LPS only activates TLR4 (uniprot also mentions CD14 and LBP bind to lipopolysaccharide (P08571+P18428))
+Ligand_upLPS	P08571	CD14 binds bacterial lipopolysaccharide
