@@ -4,96 +4,14 @@ import scipy.sparse
 import numpy.random
 import pandas
 import numpy
+import activationFunctions
 from scipy.sparse.linalg import eigs
 #from scipy.linalg import norm
 from scipy.linalg import eig
 
+
 #import matplotlib.pyplot as plt
 #import seaborn
-
-
-########Activation function
-def activation(x, leak):
-    #x[x<0] = leak*x[x<0]
-    #x[x>=0.5] = 0.5 * (1 + (1./(0.5/(x[x>=0.5]-0.5) + 1)))
-    x = numpy.where(x < 0, x * leak, x)
-    x = numpy.where(x > 0.5, 1-0.25/x, x) #Pyhton will display division by zero warning since it evaluates both before selecting
-    return x
-
-def deltaActivation(x, leak):
-#    middleIndex = numpy.logical_and(x<0.5, x>0)
-#    x[x>=0.5] = 0.25/(((x[x>=0.5]-0.5) + 0.5)**2)
-#    x[middleIndex] = 1
-#    x[x<0] = leak
-    # middleIndex = numpy.logical_and(x<=0.5, x>0)
-    # x = numpy.where(x > 0.5, 0.25/(((x-0.5) + 0.5)**2), x)
-    # x[middleIndex] = 1
-    # x = numpy.where(x < 0, leak, x)
-    y = numpy.ones(x.shape) #derivative = 1 if nothing else is stated
-    y = numpy.where(x <= 0, leak, y)  #let derivative be 0.01 at x=0
-    #y = numpy.where(x > 0.5, 0.25/(((x-0.5) + 0.5)**2), y)
-    y = numpy.where(x > 0.5, 0.25/(x**2), y)
-    return y
-
-
-
-def oneStepDeltaActivationFactor(yhatFull, leak):
-    y = torch.ones(yhatFull.shape, dtype=yhatFull.dtype)
-    piece1 = yhatFull<=0
-    piece3 = yhatFull>0.5
-    y[piece1] = torch.tensor(leak, dtype=yhatFull.dtype) #there is a bug in torch that sets this to 0 if piece1 all true, will probably never happen
-    y[piece3] = 0.25/((-0.25/(yhatFull[piece3]-1))**2)
-    return y
-
-# def oneStepActivationFactor(yhatFull, leak):
-#     y = torch.ones(yhatFull.shape, dtype=yhatFull.dtype)
-#     piece1 = yhatFull<=0
-#     piece3 = yhatFull>0.5
-#     y[piece1] = torch.tensor(leak, dtype=yhatFull.dtype) #there is a bug in torch that sets this to 0 if piece1 all true, will probably never hapen
-#     y[piece3] = 4 * (yhatFull[piece3] - yhatFull[piece3]**2)
-#     return y
-
-# def activationFactor(x, leak):
-#     #x[x<0] = leak*x[x<0]
-#     #x[x>=0.5] = 0.5 * (1 + (1./(0.5/(x[x>=0.5]-0.5) + 1)))
-#     #y = numpy.ones(x.shape)
-#     y = numpy.where(x <= 0, leak, 1)
-#     y = numpy.where(x > 0.5, 0.5 * (1 + (1/(0.5/(x-0.5) + 1)))/x, y) #Pyhton will display division by zero warning since it evaluates both before selecting
-#     return y
-
-def invActivation(x, leak):
-    if leak>0:
-        x = numpy.where(x < 0, x/leak, x)
-    else:
-        x = numpy.where(x < 0, 0, x)
-    x = numpy.where(x > 0.5, -0.25/(x-1), x) #Pyhton will display division by zero warning since it evaluates both before selecting
-    return x
-
-# def activation(x, leak):
-#     x = numpy.where(x <= 0, x * leak, x)
-#     x = numpy.where(x > 0, 1/((1/x) + 1), x) #Pyhton will display division by zero warning since it evaluates both before selecting
-#     return x
-
-# def activationFactor(x, leak):
-#     y = numpy.where(x <= 0, leak, 1)
-#     y = numpy.where(x > 0, (1/((1/x) + 1))/x, y) #Pyhton will display division by zero warning since it evaluates both before selecting
-#     return y
-
-# def deltaActivation(x, leak):
-#     y = numpy.ones(x.shape) #derivative = 1 if nothing else is stated
-#     y = numpy.where(x <= 0, leak, y)  #let derivative be 0.01 at x=0
-#     y = numpy.where(x > 0, 1/((x + 1)**2), y)
-#     return y
-
-# def invActivation(x, leak):
-#     if leak>0:
-#         x = numpy.where(x < 0, x/leak, x)
-#     else:
-#         x = numpy.where(x < 0, 0, x)
-#     x = numpy.where(x > 0, -(1*x)/(x - 1), x)
-#     return x
-
-
 
 def gradCliping(grad, n):
     clipingFilter = grad<-n
@@ -203,19 +121,21 @@ class spectralRadius(torch.autograd.Function):
 
 
 
+
 class bionetworkFunction(torch.autograd.Function):
     @staticmethod
-    def forward(ctx, x, weights, bias, A, networkList, parameters):
+    def forward(ctx, x, weights, bias, A, networkList, parameters, activation, deltaActivation):
         #Load into memory
         ctx.weights = weights.detach().numpy()
         A.data = ctx.weights
         ctx.networkList = networkList
         ctx.A = A
+        ctx.deltaActivation = deltaActivation
 
         bIn = x.transpose(0, 1).detach().numpy() + bias.detach().numpy()
 
         xhat = numpy.zeros(bIn.shape, dtype = bIn.dtype)
-        #xhat = numpy.random.rand(bIn.shape[0], bIn.shape[1])
+        #xhat = numpy.random.rand(bIn.shape[0], bIn.shape[1]).astype(bIn.dtype)
 
         for i in range(parameters['iterations']):
             xhat = A.dot(xhat)
@@ -241,9 +161,9 @@ class bionetworkFunction(torch.autograd.Function):
 
         gradIn = grad_output.transpose(0, 1).detach().numpy()
         grad = numpy.zeros(gradIn.shape)
-        #grad = numpy.random.rand(gradIn.shape[0], gradIn.shape[1])
+        #grad = numpy.random.randn(gradIn.shape[0], gradIn.shape[1]).astype(bIn.dtype)
         deltaX = ctx.xRaw.copy()
-        deltaX = deltaActivation(deltaX, ctx.parameters['leak'])
+        deltaX = ctx.deltaActivation(deltaX, ctx.parameters['leak'])
 
         for i in range(ctx.parameters['iterations']):
             grad = deltaX * (AT.dot(grad) + gradIn)
@@ -259,13 +179,14 @@ class bionetworkFunction(torch.autograd.Function):
         grad_weight = torch.from_numpy(numpy.sum(numpy.multiply(ctx.x[ctx.networkList[1],:], grad[ctx.networkList[0],:]), axis=1))
         grad_bias = torch.from_numpy(numpy.sum(grad, axis=1)).unsqueeze(1)
 
-        return output, grad_weight, grad_bias, None, None, None
-
+        return output, grad_weight, grad_bias, None, None, None, None, None
+    
+ 
 class model(torch.nn.Module):
-    def __init__(self, networkList, nodeNames, modeOfAction, inputAmplitude, projectionFactor, inName, outName, bionetParams, valType):
+    def __init__(self, networkList, nodeNames, modeOfAction, inputAmplitude, projectionFactor, inName, outName, bionetParams, activationFunction='MML', valType=torch.double):
         super(model, self).__init__()
         self.inputLayer = projectInput(nodeNames, inName, inputAmplitude, valType)
-        self.network = bionet(networkList, len(nodeNames), modeOfAction, bionetParams, valType)
+        self.network = bionet(networkList, len(nodeNames), modeOfAction, bionetParams, activationFunction, valType)
         self.projectionLayer = projectOutput(nodeNames, outName, projectionFactor, valType)
 
     def forward(self, X):
@@ -274,14 +195,15 @@ class model(torch.nn.Module):
         Yhat = self.projectionLayer(fullY)
         return Yhat, fullY
 
-def spectralLoss(model, YhatFull, weights, expFactor = 20, lb=0.5):
-    bionetParams = model.network.parameters
+
+def spectralLoss(signalingModel, YhatFull, weights, expFactor = 20, lb=0.5):
+    bionetParams = signalingModel.param
 
     randomIndex = numpy.random.randint(YhatFull.shape[0])
-    activationFactor = oneStepDeltaActivationFactor(YhatFull[randomIndex,:], bionetParams['leak']).detach()
-    weightFactor = activationFactor[model.network.networkList[0]]
+    activationFactor = signalingModel.oneStepDeltaActivationFactor(YhatFull[randomIndex,:], bionetParams['leak']).detach()
+    weightFactor = activationFactor[signalingModel.networkList[0]]
     multipliedWeightFactor = weights * weightFactor
-    spectralRadius = model.network.getSpectralRadius(multipliedWeightFactor)
+    spectralRadius = signalingModel.getSpectralRadius(multipliedWeightFactor)
     #spectralClampFactor = 1/torch.max(spectralRadius.detach()/bionetParams['spectralLimit'], torch.tensor(1.0).double()) #Prevents infinte penalty
     #spectralRadiusLoss =  (1/(1 - spectralClampFactor*spectralRadius) - 1)
 
@@ -445,7 +367,7 @@ def generateRandomInput(model, N, simultaniousInput):
 
 def reduceSpectralRadius(model, spectralTarget, localX, maxIter = 100):
     N = localX.shape[0]
-    leak = model.network.parameters['leak']
+    leak = model.network.param['leak']
     networkList = model.network.networkList
 
     localY, localFull = model(localX)
@@ -488,19 +410,18 @@ def reduceSpectralRadius(model, spectralTarget, localX, maxIter = 100):
 
     return model
 
-def oneCycle(e, maxIter, maxHeight = 2e-3, minHeight = 1e-8, peak = 1000):
+def oneCycle(e, maxIter, maxHeight = 1e-3, startHeight=1e-5, endHeight=1e-5, minHeight = 1e-7, peak = 1000):
     phaseLength = 0.95 * maxIter
-
     if e<=peak:
         effectiveE = e/peak
-        lr = (maxHeight-minHeight) * 0.5 * (numpy.cos(numpy.pi*(effectiveE+1))+1) + minHeight
+        lr = (maxHeight-startHeight) * 0.5 * (numpy.cos(numpy.pi*(effectiveE+1))+1) + startHeight
     elif e<=phaseLength:
         effectiveE = (e-peak)/(phaseLength-peak)
-        lr = (maxHeight-minHeight) * 0.5 * (numpy.cos(numpy.pi*(effectiveE+2))+1) + minHeight
+        lr = (maxHeight-endHeight) * 0.5 * (numpy.cos(numpy.pi*(effectiveE+2))+1) + endHeight
     else:
-        lr = minHeight
-
+        lr = endHeight
     return lr
+
 
 def getSamples(N, batchSize):
     order = numpy.random.permutation(N)
@@ -511,18 +432,18 @@ def getSamples(N, batchSize):
     return outList
 
 def getAllSpectralRadius(model, YhatFull):
-    leak = model.network.parameters['leak']
+    leak = model.network.param['leak']
     sr = numpy.zeros(YhatFull.shape[0])
-    activationFactor = oneStepDeltaActivationFactor(YhatFull, leak)
+    activationFactor = model.network.oneStepDeltaActivationFactor(YhatFull, leak)
     for i in range(len(sr)):
         weightFactor = activationFactor[i, model.network.networkList[0]]
         sr[i] = model.network.getSpectralRadius(model.network.weights * weightFactor).item()
     return sr
 
 class bionet(nn.Module):
-    def __init__(self, networkList, size, modeOfAction, parameters, dtype):
+    def __init__(self, networkList, size, modeOfAction, parameters, activationFunction, dtype):
         super().__init__()
-        self.parameters = parameters
+        self.param = parameters
 
         self.size_in = size
         self.size_out = size
@@ -538,11 +459,22 @@ class bionet(nn.Module):
 
         self.weights = nn.Parameter(weights)
         self.bias = nn.Parameter(bias)
-
-
+        
+        if activationFunction == 'MML':
+            self.activation = activationFunctions.MMLactivation
+            self.delta = activationFunctions.MMLDeltaActivation
+            self.oneStepDeltaActivationFactor = activationFunctions.MMLoneStepDeltaActivationFactor
+        elif activationFunction == 'leakyRelu':
+            self.activation = activationFunctions.leakyReLUActivation
+            self.delta = activationFunctions.leakyReLUDeltaActivation
+            self.oneStepDeltaActivationFactor = activationFunctions.leakyReLUoneStepDeltaActivationFactor     
+        elif activationFunction == 'sigmoid':
+            self.activation = activationFunctions.sigmoidActivation
+            self.delta = activationFunctions.sigmoidDeltaActivation
+            self.oneStepDeltaActivationFactor = activationFunctions.sigmoidOneStepDeltaActivationFactor
 
     def forward(self, x):
-        return bionetworkFunction.apply(x, self.weights, self.bias, self.A, self.networkList, self.parameters)
+        return bionetworkFunction.apply(x, self.weights, self.bias, self.A, self.networkList, self.param, self.activation, self.delta)
 
     def getWeight(self, nodeNames, source, target):
         self.A.data = self.weights.detach().numpy()
@@ -557,6 +489,13 @@ class bionet(nn.Module):
         wrongSignActivation = torch.logical_and(weights<0, self.modeOfAction[0] == True)#.type(torch.int)
         wrongSignInhibition = torch.logical_and(weights>0, self.modeOfAction[1] == True)#.type(torch.int)
         return torch.logical_or(wrongSignActivation, wrongSignInhibition)
+    
+    def getNumberOfViolations(self):
+        return torch.sum(self.getViolations(self.weights))
+    
+    def signRegularization(self, MoAFactor):
+        return MoAFactor * torch.sum(torch.abs(self.weights[self.getViolations(self.weights)]))
+    
 
     # def getSpectralLoss(self):
     #     self.A.data = self.weights.detach().numpy()
