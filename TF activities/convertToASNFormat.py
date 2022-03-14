@@ -68,7 +68,7 @@ leftRight = plt.ylim()
 plt.plot([consistencyCutOf, consistencyCutOf], [leftRight[0], leftRight[1]], color='black')
 ax.set_title('TF consistency')
 plt.xlabel('STD')
-
+plt.savefig("figures/TFSTD.svg")   
 
 plt.figure()
 order = numpy.argsort(numpy.percentile(df.values, 75, axis=1))
@@ -77,6 +77,7 @@ ax = sns.boxplot(data=df.T, orient='h', showfliers=False)
 ax = sns.stripplot(data=df.T, orient='h', color = 'black')
 ax.set_title('Condition consistency')
 plt.xlabel('STD')
+plt.savefig("figures/ConditionSTD.svg")   
 
 # plt.rcParams["figure.figsize"] = (5,1)
 # plt.figure()
