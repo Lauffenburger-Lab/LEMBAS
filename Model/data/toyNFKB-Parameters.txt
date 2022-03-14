@@ -1,0 +1,11 @@
+Source	Target	Type	Value
+TNF	NFKB_C	Weight	0.9
+NFKB_C	NFKB_N	Weight	1.1
+P100	NFKB_C	Weight	-0.7
+TNF		Bias	0
+NFKB_C		Bias	0
+NFKB_N		Bias	0
+P100		Bias	0
+NFKB_N		Projection	1.3
+TNF		Input	1.0
+P100		Input	1.0
