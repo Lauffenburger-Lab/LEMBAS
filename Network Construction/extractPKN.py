@@ -10,8 +10,8 @@ def mergeContent(df):
     A = df.iloc[0,:]
     B = df.iloc[1,:]
     result = A.copy()
-    result['stimulation'] = numpy.logical_or(A['stimulation'], B['stimulation'])
-    result['inhibition'] = numpy.logical_or(A['inhibition'], B['inhibition'])
+    result['stimulation'] = numpy.logical_or(A['stimulation']==1, B['stimulation']==1).astype(int)
+    result['inhibition'] = numpy.logical_or(A['inhibition']==1, B['inhibition']==1).astype(int)
     mergedSources = numpy.unique(A['sources'].split(';') + B['sources'].split(';'))
     result['sources']  = ';'.join(mergedSources)
     mergedReferences = numpy.unique(A['references'].split(';') + B['references'].split(';'))
@@ -50,6 +50,10 @@ omnipath = omnipath[relevantInformation]
 omnipath = omnipath.rename(columns={'consensus_direction': 'direction', 'consensus_stimulation': 'stimulation', 'consensus_inhibition': 'inhibition'})
 omnipath[['references']] = omnipath[['references']].astype(str)
 
+#Ensure integers
+omnipath[['direction', 'stimulation', 'inhibition']] = omnipath[['direction', 'stimulation', 'inhibition']].astype(int)
+
+
 #Remove interactions without reference
 referenceFilter = omnipath['references']=='nan'
 omnipath = omnipath.loc[referenceFilter==False, :]
@@ -63,9 +67,13 @@ for i in range(currationAdd.shape[0]):
     if sum(inList) == 0:  #add new
         omnipath = omnipath.append(currationAdd.iloc[i,:])
     else:         #add reference
-        #Note, does not check for consistency of sign etc
+        #Note, overwrights sign of direction stimulation and inhibition
         omnipath.loc[inList,'sources'] = omnipath.loc[inList,'sources'] + ';' + currationAdd.iloc[i,:]['sources']
         omnipath.loc[inList,'references'] = omnipath.loc[inList,'references'] + ';' + currationAdd.iloc[i,:]['references']
+        omnipath.loc[inList,'direction'] = currationAdd.iloc[i,:]['direction']
+        omnipath.loc[inList,'stimulation'] = currationAdd.iloc[i,:]['stimulation']
+        omnipath.loc[inList,'inhibition'] = currationAdd.iloc[i,:]['inhibition']
+        
 
 #Remove interactions
 currationRemove = pd.read_csv('curation/PKN/remove.tsv', sep='\t', low_memory=False)
@@ -98,12 +106,10 @@ for i in range(currationEdit.shape[0]):
     else:
         print('No match for edit', currationEdit.iloc[i,:])
 
-
 #Remove interactions with same source and target
 sameSourceAndTargetFilter = omnipath['source'] == omnipath['target']
 print('Removed interactions with same source and target', sum(sameSourceAndTargetFilter))
 omnipath =  omnipath.loc[sameSourceAndTargetFilter==False, :]
-
 
 #Duplicate reversible
 reversibleFilter = omnipath['direction'] == 0

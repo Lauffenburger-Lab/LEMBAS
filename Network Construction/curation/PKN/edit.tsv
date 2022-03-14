@@ -1,1 +1,8 @@
 source	target	action	value	references
+O75925	O75626	set_stimulation	0	22555612
+O75925	O75626	set_inhibition	0	22555612
+P61244	Q99583	reverse_direction		15548375
+P61244	P50539	reverse_direction		15548375
+P10276	P19793	set_direction	0	31694317
+P49715	P17947	set_stimulation	0	12091339
+P40189	P40763	set_inhibition	0	12040451

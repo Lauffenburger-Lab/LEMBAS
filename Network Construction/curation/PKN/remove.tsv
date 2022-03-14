@@ -2,3 +2,12 @@ source	target	motivation	references
 P08887	P23458	IL6R only signals through interaction with gp130 (IL6ST)	30267440
 P08887	P40763	IL6R only signals through interaction with gp130 (IL6ST)	30267440
 P08887	P12931	IL6R only signals through interaction with gp130 (IL6ST)	30267440
+Q12778	O43474	Transcriptional not posttranslational interaction.	18375530
+P40763	O43474	Transcriptional not posttranslational interaction.	17129668
+P29466	Q12772	Direct activation not shown in cited study.	16990137
+Q16665	Q12983	Transcriptional not posttranslational interaction 	11559532
+P04637	Q9H3D4	Transcriptional not posttranslational interaction 	11238924
+P49841	P15407	The referenced review suggests inhibition of AP1 (JUN) not activation of FOSL1	20154735
+P40763	P17947	Transcriptional not posttranslational interaction.	11889125
+Q08334	P23458	IL10RB only binds TYK2	25004819
+Q9UHF4	P29597	IL20RA only binds JAK1	30319661

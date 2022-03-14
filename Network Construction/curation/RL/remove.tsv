@@ -1,3 +1,7 @@
 source	target	motivation	references
 Q9NWZ3	O00206	IRAK4 is not a ligand, and the cited study does not suggest that.	HuGeSiM:21220427
 P08571	O00206	The interaction between CD14 and TLR4 is a R-R interaction not a L-R interaction.	HuGeSiM:11745332
+P01137	P84022	Not expected to be in same compartment.	
+P01137	P05556	Interaction is idirect via SMAD.	HuGeSiM:19115199
+P01137	P61073	Evidence is indirect.	HuGeSiM:27314628
+O15123	P05556	Studies show no interaction.	HuGeSiM:25635707
