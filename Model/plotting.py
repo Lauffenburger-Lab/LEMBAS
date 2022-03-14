@@ -302,7 +302,7 @@ def displayData(Y, sampleName, outName):
     df.columns = sampleName
     df.index = outName
     df.round(3)
-    sns.clustermap(df, cmap='RdBu_r', vmin=0, vmax=1)
+    sns.clustermap(df, cmap='RdBu_r', vmin=0, vmax=1, yticklabels=True, xticklabels=True, figsize=(7,13), dendrogram_ratio=0.1, cbar_pos=(0.9, 0.02, 0.05, 0.1))
     plt.title('data')
 
 def compareDataAndModel(X, Y, Yhat, sampleName, outName):
