@@ -49,7 +49,7 @@ ligandInput = ligandInput.loc[:,inName]
 TFOutput = TFOutput.loc[:,outName]
 
 sampleName = ligandInput.index.values
-model = bionetwork.model(networkList, nodeNames, modeOfAction, inputAmplitude, projectionAmplitude, inName, outName, bionetParams, torch.double)
+model = bionetwork.model(networkList, nodeNames, modeOfAction, inputAmplitude, projectionAmplitude, inName, outName, bionetParams)
 model.inputLayer.weights.requires_grad = False
 model.network.preScaleWeights()
 
@@ -105,7 +105,7 @@ for e in range(e, maxIter):
         weightLoss = L2 * (torch.sum(torch.square(model.network.weights)) + torch.sum(1/(torch.square(model.network.weights) + 0.5)))
         projectionLoss = 1e-6 * torch.sum(torch.square(model.projectionLayer.weights - projectionAmplitude))
 
-        spectralRadiusLoss, spectralRadius = bionetwork.spectralLoss(model, YhatFull, model.network.weights, expFactor = 21)
+        spectralRadiusLoss, spectralRadius = bionetwork.spectralLoss(model.network, YhatFull, model.network.weights, expFactor = 21)
 
         loss = fitLoss + signConstraint + ligandConstraint + weightLoss + biasLoss + spectralFactor * spectralRadiusLoss + stateLoss + projectionLoss
 

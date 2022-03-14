@@ -7,6 +7,19 @@ import pandas
 from scipy.stats import pearsonr
 import seaborn as sns
 from scipy.stats import mannwhitneyu
+import copy
+
+def loadModel(refModel, fileName):
+    #work around to copy weights and bias values 
+    #because class structure has been updated since the run
+    curModel = torch.load(fileName)
+    model = copy.deepcopy(refModel)
+    model.network.weights.data = curModel.network.weights.data.clone()
+    model.network.bias.data = curModel.network.bias.data.clone()
+    model.inputLayer.weights.data = curModel.inputLayer.weights.data.clone()
+    model.projectionLayer.weights.data = curModel.projectionLayer.weights.data.clone()
+    model.network.param = curModel.network.parameters.copy()
+    return model
 
 #Load network
 networkList, nodeNames, modeOfAction = bionetwork.loadNetwork('data/macrophage-Model.tsv')
@@ -33,6 +46,8 @@ sampleName = ligandInput.index.values
 X = torch.tensor(ligandInput.values.copy(), dtype=torch.double)
 Y = torch.tensor(TFOutput.values, dtype=torch.double)
 
+bionetParams = bionetwork.trainingParameters(iterations = 150, clipping=1, leak=0.01)
+model = bionetwork.model(networkList, nodeNames, modeOfAction, 3, 1.2, inName, outName, bionetParams)
 
 #%%
 testedConditions = CVconditions['Condition'].values
@@ -53,7 +68,7 @@ trainFit = numpy.zeros(len(conditionOrder))
 testFit = numpy.zeros(len(conditionOrder))
 
 for i in range(len(conditionOrder)):
-    curModel = torch.load('CVmacrophage/model_' + str(i) + '.pt')
+    curModel = loadModel(model, 'CVmacrophage/model_' + str(i) + '.pt')
     Yhat, YhatFull = curModel(referenceX)
     predictionY[i,:] = Yhat[i,:]
     trainMap = numpy.array(range(len(conditionOrder))) !=i
@@ -93,7 +108,7 @@ testFitScrambled = numpy.zeros(len(conditionOrder))
 
 
 for i in range(len(conditionOrder)):
-    curModel = torch.load('CVmacrophage/scrambled_' + str(i) + '.pt')
+    curModel = loadModel(model, 'CVmacrophage/scrambled_' + str(i) + '.pt')
     Yhat, YhatFull = curModel(referenceX)
     scrambledY[i,:] = Yhat[i,:]
     trainMap = numpy.array(range(len(conditionOrder))) !=i
@@ -138,15 +153,18 @@ failedTfs = numpy.mean(tfCorrelations, axis=0)<failedTFCutof
 #scrambledConditions = plotting.calculateCorrelations(referenceY.T, scrambledY.T)
 
 
-curModel = torch.load('CVmacrophage/model_reference.pt')
+curModel = loadModel(model, 'CVmacrophage/model_reference.pt')
 fullModelY, YhatFull = curModel(X)
 #fullCorrelation = plotting.calculateCorrelations(referenceY, scrambledY)
 #fullConditions = plotting.calculateCorrelations(referenceY.T, scrambledY.T)
 
 #%%
-plt.rcParams["figure.figsize"] = (3,3)
+plt.rcParams["figure.figsize"] = (15,15)
+plt.figure()
 plotting.displayData(Y, sampleName, outNameGene)
+plt.savefig("figures/literature CV/heatmap.svg")   
 
+plt.rcParams["figure.figsize"] = (3,3)
 plt.figure()
 
 
@@ -169,7 +187,7 @@ plt.gca().set_xticks([0, 0.5, 1])
 plt.gca().set_yticks([0, 0.5, 1])
 plotting.lineOfIdentity()
 plt.text(0, 0.9, 'r {:.2f}'.format(r))
-
+plt.savefig("figures/literature CV/train.svg")   
 
 plt.figure()
 A = predictionY.detach().numpy()
@@ -189,7 +207,7 @@ plt.gca().set_xticks([0, 0.5, 1])
 plt.gca().set_yticks([0, 0.5, 1])
 plotting.lineOfIdentity()
 plt.text(0, 0.9, 'r {:.2f}\np {:.2e}'.format(r, p))
-
+plt.savefig("figures/literature CV/test.svg")   
 
 plt.figure()
 A = scrambledY.detach().numpy()
@@ -281,13 +299,18 @@ plt.plot(Xinterval, [0, 0], 'k')
 
 r = numpy.mean(samplePrediction)
 plt.plot(Xinterval, [r, r], color=colors[0], alpha=0.5)
+plt.text(18, r, '{:.2f}'.format(r))
+
 r = numpy.mean(samplePredictionScrabled)
 plt.plot(Xinterval, [r, r], color=colors[1], alpha=0.5)
+plt.text(18, r, '{:.2f}'.format(r))
+
 plt.plot(Xinterval, [predictingAverage, predictingAverage], 'k--')
 
 U1, p = mannwhitneyu(samplePrediction, samplePredictionScrabled)
 plt.text(0, r, 'p {:.2e}'.format(p))
 plt.xlim(Xinterval)
+plt.savefig("figures/literature CV/CVconditions.svg")   
 
 #plt.legend(['CV', 'Scrambled Y'])
 

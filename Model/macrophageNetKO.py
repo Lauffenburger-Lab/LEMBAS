@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import bionetwork
 import pandas
 import seaborn as sns
+import copy
 
 #Load network
 networkList, nodeNames, modeOfAction = bionetwork.loadNetwork('data/macrophage-Model.tsv')
@@ -14,6 +15,19 @@ TFOutput = pandas.read_csv('data/macrophage-TFs.tsv', sep='\t', low_memory=False
 
 CVconditions = pandas.read_csv('CVmacrophage/conditions.tsv', sep='\t')
 criterion = torch.nn.MSELoss(reduction='mean')
+
+def loadModel(refModel, fileName):
+    #work around to copy weights and bias values 
+    #because class structure has been updated since the run
+    curModel = torch.load(fileName)
+    model = copy.deepcopy(refModel)
+    model.network.weights.data = curModel.network.weights.data.clone()
+    model.network.bias.data = curModel.network.bias.data.clone()
+    model.inputLayer.weights.data = curModel.inputLayer.weights.data.clone()
+    model.projectionLayer.weights.data = curModel.projectionLayer.weights.data.clone()
+    model.network.param = curModel.network.parameters.copy()
+    return model
+
 
 #Subset input and output to intersecting nodes
 inName = ligandInput.columns.values
@@ -47,10 +61,13 @@ conditionNr = numpy.argwhere(numpy.isin(testedConditions, condition)).flatten()
 referenceX = X[conditionOrder,:]
 referenceY = Y[conditionOrder,:]
 
+bionetParams = bionetwork.trainingParameters(iterations = 150, clipping=1, leak=0.01)
+model = bionetwork.model(networkList, nodeNames, modeOfAction, 3, 1.2, inName, outName, bionetParams)
+
 
 #%%
 #Knock out test
-curModel = torch.load('CVmacrophage/model_0.pt')
+curModel = loadModel(model,'CVmacrophage/model_0.pt')
 nrConditions = len(testedConditions)
 nrKO = len(nodeNames)
 nrTF = Y.shape[1]
@@ -64,7 +81,7 @@ inputKO = inputKO.repeat(nrKO, 1)
 inputKO = inputKO + knockOutLevel * torch.eye(nrKO)
 
 for i in range(nrConditions):
-    curModel = torch.load('CVmacrophage/model_' + str(i) + '.pt')
+    curModel = loadModel(model, 'CVmacrophage/model_' + str(i) + '.pt')
     ref, _ = curModel(inputX)
     KOFull = curModel.network(inputKO)
     KO = curModel.projectionLayer(KOFull).detach()
