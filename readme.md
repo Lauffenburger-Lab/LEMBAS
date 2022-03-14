@@ -22,7 +22,7 @@
 
 - Pubmed ID: -
 
-- Last update: 2021-09-14
+- Last update: 2022-03-14
 
 This repository is administered by @avlant.
 
@@ -39,7 +39,7 @@ This repository is administered by @avlant.
   * **pytorch_1.6.0**
   * **scipy_1.6.2**
   * **seaborn_0.11.0**
-* **Matlab_R_2020_a** (only required for transcriptomics data assembly and network visualization)
+* **Matlab_R_2020_a** (only required for transcriptomics data assembly, network visualization and complexity tests)
 * **R_4.0.3** (only required for TF activity estimates)
 
 This is the tested environment, but program may run with other specifications.
@@ -67,43 +67,113 @@ Run the following files to reproduce the figures. Note that some processes are s
   - **a**, Network Construction/drawNetwork.m
   - **b**, **c, d**, Model/synthNetComplexity.py (Model/generateSynthNet.py to generate the parameterization)
 - **Figure 5** (<10 min, ~2 days to run the full scan)
-  - **a**, (illustration)
-  - **b**, **c**, **d** Model/synthNetDataScreenResults.py (For generating data Model/synthNetDataScreen.py executed on cluster with Model/runSlurmSynthScreen.sh after conditions specified by Model/synthNetDataScreenConditions.py and macrophageNet.py)
-  - **e**, (illustration)
-  - **f**, Model/synthNetKO.py
+  - **a**, **b** Model/synthNetDataScreenResults.py (For generating data Model/synthNetDataScreen.py executed on cluster with conditions specified by Model/synthNetDataScreenConditions.py and macrophageNet.py)
+  - **c**, Model/synthNetKO.py
+- **Figure 6** (to display results <10 min, to train models ~2 h for each CV fold)
+  - **a** (Illustration)
+  - **b** TF activities Ligand Screen/convertToASNFormat.py (TF activities Ligand Screen/run.R to generate TF data from count matrix)
+  - **c**, **d** Model/ligandScreenCrossValidationResults.py (For training models Model/ligandScreenCrossValidation.py executed on a cluster after conditions specified by Model/ligandScreenExtractConditions.py
+  - **e, f** ligandScreenKO.py
+  - **g**  ligandScreenSensitivity.py
 
-- **Figure 6** (<10 min, ~2 h each for CV and  scrambled CV)
-  - **a, b, c, d** Model/macrophageNetCrossValidationResults.py (For generating data Model/macrophageNetCrossValidation.py and Model/macrophageNetCrossValidationScramble.py executed on cluster with Model/runSlurmMacrophageScramble.sh and Model/runSlurmMacrophage.sh after conditions specified by Model/macrophageNetExtractConditions.py and and Model/macrophageNet.py for reference data)
-  - **e**, Model/macrophageNetKO.py
 
 ------
 
 - **Figure S1** (~10 min)
+
   - **a**, (illustration)
-  - **b**, Model/ODEsimulation.py
+  - **b**, fitODE.py
+  - **c**, Model/ODEsimulation.py
+
 - **Figure S2** (<2 min)
   - Model/testAutograd.py
-- **Figure S3** (<10 min per test)
+
+- **Figure S3** (<10 min)
+
+  - **a**, complexity tests/profileTime.m
+  - **b**, complexity tests/profileTimeBackprop.m
+
+- **Figure S4** (<10 min per test)
+
   - **a**, Model/toyNetRecurrent.py (change parameter testSelection to the adversarial test of choice)
   - **d, e, f, g**, Model/pipeNet.py
-- **Figure S4** (<10 min)
+
+- **Figure S5** (<10 min)
+
+  - **a**, (illustration)
+  - **b, c, d**, Model/toyNetNFKB.py
+
+- **Figure S6** (<10 min)
+
   - **a, b**, Model/testEigenvectorDerivative.py
-- **Figure S5** (~20 min)
-  - Model/testBPspeed.py
-- **Figure S6** (2 h)
-  - **a**, Model/synthNetNoRegularization.py
-  - **b, c, d**, Model/synthNetDataScreenResults.py
 
 - **Figure S7** (<10 min)
+
+  - Model/synthNetComplexity.py 
+
+- **Figure S8** (<10 min)
+
+  - Model/generateSynthToy.py
+
+- **Figure S9** (<10 min)
+
+  - Model/synthNetComplexity.py 
+
+- **Figure S10** (~10 min)
+
+  - **a**, Model/testBPspeed.py
+  - **b, c,** Model/synthNetTimeResults.py (generate conditions with Model/synthNetTimeConditions.py and deploy them with Model/synthNetTimeScreen.py).
+
+- **Figure S11** (2 h) 
+
+  - **a**, Model/synthNetNoRegularization.py
+  - **b, c, d**, **e,** Model/synthNetDataScreenResults.py
+
+- **Figure S12** (<10 min)
+
+  - **a, b,c** Model/synthNetPredictMissingInteractions_Posthoc.py
+
+- **Figure S13** (<10 min)
+
   - **a, b**, TF activities/convertToASNFormat.py
+
+- **Figure S14** (<10 min)
+
+  - TF activities/convertToASNFormat.py
+
+- **Figure S15**  (<10 min, ~2 h for CV and scrambled CV)
+
+  - **a,b,c**, Model/macrophageNetCrossValidationResults.py (For generating data Model/macrophageNetCrossValidation.py and Model/macrophageNetCrossValidationScramble.py executed on cluster with Model/runSlurmMacrophageScramble.sh and Model/runSlurmMacrophage.sh after conditions specified by Model/macrophageNetExtractConditions.py and and Model/macrophageNet.py for reference data)
+
+- **Figure S16** (<10 min)
+
+  - TF activities Ligand Screen/convertToASNFormat.py
+
+- **Figure S17** (<10 min)
+
+  - **a,b,c** Model/ligandScreenCrossValidationResults.py
+
+- **Figure S18** (<10 min, 15 min per CV fold)
+
+  - TF activities Ligand Screen/convertToASNFormat.py
+
+  
 
 ------
 
-**For generating the TF output data and ligand input data (~30 min)**
+**For generating the TF output data and ligand input data for literature data(~30 min)**
 
 1. Extract metadata on relevant conditions, TF activities/parseCondition.m 
 2. Assemble and filter transcriptomics data from files, TF activities/raw/joinData.m
 3. Generate the TF activities with Dorothea, TF activities/macrophage.R
+4. Convert into ASN output format, TF activities/convertToASNFormat.py
+5. Generate matching ASN input file, TF activities/constructASNLigandMatrix.py
+
+**For generating the TF output data and ligand input data for experimental data(~30 min)**
+
+1. Extract estimated_counts from loom object, TF activities Ligand Screen/extractSmartSeq.py
+2. Assemble and filter transcriptomics data from extracted counts, TF activities Ligand Screen/filterSmartSeq.py
+3. Generate the TF activities with Dorothea, TF activities/runR.R
 4. Convert into ASN output format, TF activities/convertToASNFormat.py
 5. Generate matching ASN input file, TF activities/constructASNLigandMatrix.py
 
@@ -114,6 +184,7 @@ Run the following files to reproduce the figures. Note that some processes are s
 3. Extract raw network from Omnipath, Network Construction/extractPKN.py
 4. Reduce network to KEGG interactions, Network Construction/trimKeggModel.py
 5. Reduce network to KEGG+InnateDB, Network Construction/trimMacrophageModel.py
+5. Reduce network to KEGG+SIGNOR, Network Construction/trimLigandModel.py
 
 ## Run on your data
 
