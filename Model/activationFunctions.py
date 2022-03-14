@@ -8,14 +8,14 @@ import numpy
 import torch
 
 ######## MML activation
-def MMLactivation(x, leak):
+def MMLactivation(x, leak=0.01):
     #x[x<0] = leak*x[x<0]
     #x[x>=0.5] = 0.5 * (1 + (1./(0.5/(x[x>=0.5]-0.5) + 1)))
     x = numpy.where(x < 0, x * leak, x)
     x = numpy.where(x > 0.5, 1 - 0.25/x, x) #Pyhton will display division by zero warning since it evaluates both before selecting
     return x
 
-def MMLDeltaActivation(x, leak):
+def MMLDeltaActivation(x, leak=0.01):
 #    middleIndex = numpy.logical_and(x<0.5, x>0)
 #    x[x>=0.5] = 0.25/(((x[x>=0.5]-0.5) + 0.5)**2)
 #    x[middleIndex] = 1
@@ -30,7 +30,7 @@ def MMLDeltaActivation(x, leak):
     y = numpy.where(x > 0.5, 0.25/(x**2), y)
     return y
 
-def MMLoneStepDeltaActivationFactor(yhatFull, leak):    #Note that this will only work for monoton functions
+def MMLoneStepDeltaActivationFactor(yhatFull, leak=0.01):    #Note that this will only work for monoton functions
     y = torch.ones(yhatFull.shape, dtype=yhatFull.dtype)
     piece1 = yhatFull<=0
     piece3 = yhatFull>0.5
@@ -38,7 +38,7 @@ def MMLoneStepDeltaActivationFactor(yhatFull, leak):    #Note that this will onl
     y[piece3] = 0.25/((-0.25/(yhatFull[piece3]-1))**2)
     return y
 
-def MMLInvActivation(x, leak):
+def MMLInvActivation(x, leak=0.01):
     if leak>0:
         x = numpy.where(x < 0, x/leak, x)
     else:
@@ -49,22 +49,22 @@ def MMLInvActivation(x, leak):
 
 
 ######## leaky relu activation
-def leakyReLUActivation(x, leak):
+def leakyReLUActivation(x, leak=0.01):
     x = numpy.where(x < 0, x * leak, x)
     return x
 
-def leakyReLUDeltaActivation(x, leak):
+def leakyReLUDeltaActivation(x, leak=0.01):
     y = numpy.ones(x.shape) #derivative = 1 if nothing else is stated
     y = numpy.where(x <= 0, leak, y)  #let derivative be 0.01 at x=0
     return y
 
-def leakyReLUoneStepDeltaActivationFactor(yhatFull, leak):  #Note that this will only work for monoton functions
+def leakyReLUoneStepDeltaActivationFactor(yhatFull, leak=0.01):  #Note that this will only work for monoton functions
     y = torch.ones(yhatFull.shape, dtype=yhatFull.dtype)
     piece1 = yhatFull<=0
     y[piece1] = torch.tensor(leak, dtype=yhatFull.dtype) #there is a bug in torch that sets this to 0 if piece1 is all true, will probably never happen
     return y
 
-def leakyReLUInvActivation(x, leak):
+def leakyReLUInvActivation(x, leak=0.01):
     if leak>0:
         x = numpy.where(x < 0, x/leak, x)
     else:
@@ -79,7 +79,7 @@ def sigmoidActivation(x, leak=0):
     x = 1/(1 + numpy.exp(-x))
     return x
 
-def sigmoidDeltaActivation(x, leak):
+def sigmoidDeltaActivation(x, leak=0):
     y = sigmoidActivation(x) * (1 - sigmoidActivation(x))
     return y
 
@@ -87,13 +87,13 @@ def sigmoidOneStepDeltaActivationFactor(yhatFull, leak):  #Note that this will o
     y = yhatFull * (1- yhatFull)
     return y
 
-def sigmoidInvActivation(x, leak):
-    if leak>0:
-        x = numpy.where(x < 0, x/leak, x)
-    else:
-        x = numpy.where(x < 0, 0, x)
-    x = numpy.where(x > 0.5, -0.25/(x-1), x) #Pyhton will display division by zero warning since it evaluates both before selecting
-    return x
+# def sigmoidInvActivation(x, leak=0):
+#     if leak>0:
+#         x = numpy.where(x < 0, x/leak, x)
+#     else:
+#         x = numpy.where(x < 0, 0, x)
+#     x = numpy.where(x > 0.5, -0.25/(x-1), x) #Pyhton will display division by zero warning since it evaluates both before selecting
+#     return x
 
 
 # def oneStepActivationFactor(yhatFull, leak):
