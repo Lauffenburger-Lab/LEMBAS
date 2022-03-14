@@ -22,12 +22,12 @@ projectionAmplitude = 1.3
 inName = annotation.loc[annotation.ligand, 'name'].values
 outName = annotation.loc[annotation.TF, 'name'].values
 
-model = bionetwork.model(networkList, nodeNames, modeOfAction, inputAmplitude, projectionAmplitude, inName, outName, bionetParams, torch.double)
+model = bionetwork.model(networkList, nodeNames, modeOfAction, inputAmplitude, projectionAmplitude, inName, outName, bionetParams)
 model.inputLayer.weights.requires_grad = False
 model.projectionLayer.weights.requires_grad = False
 
 
-parameterizedModel = bionetwork.model(networkList, nodeNames, modeOfAction, inputAmplitude, projectionAmplitude, inName, outName, bionetParams, torch.double)
+parameterizedModel = bionetwork.model(networkList, nodeNames, modeOfAction, inputAmplitude, projectionAmplitude, inName, outName, bionetParams)
 parameterizedModel = bionetwork.loadParam('data/ToyNetRecurrent-Parameters.txt', parameterizedModel, nodeNames)
 
 allWeights = parameterizedModel.network.weights.data
@@ -131,6 +131,9 @@ for e in range(e, maxIter):
 
         Yhat, YhatFull = model(dataIn)
         fitLoss = criterion(dataOut, Yhat)
+
+
+
 
         signConstraint = MoAFactor * torch.sum(torch.abs(model.network.weights[model.network.getViolations(model.network.weights)]))
         ligandConstraint = 1e-1 * torch.sum(torch.square(model.network.bias[model.inputLayer.nodeOrder,0]))
