@@ -7,6 +7,7 @@ import time
 
 networkSize = 50
 batchsize = 5
+activationFunction = 'MML'
 
 networkList, nodeNames = bionetwork.getRandomNet(networkSize, 0.1)
 MOA = numpy.full(networkList.shape, False, dtype=bool)
@@ -16,7 +17,7 @@ input = torch.randn(batchsize, len(nodeNames), dtype=torch.double, requires_grad
 
 parameters = bionetwork.trainingParameters(iterations=150, clipping=1)
 net1 = bionetwork.bionetworkAutoGrad(networkList, len(nodeNames))
-net2 = bionetwork.bionet(networkList, len(nodeNames), MOA, parameters, torch.double)
+net2 = bionetwork.bionet(networkList, len(nodeNames), MOA, parameters, activationFunction, torch.double)
 net2.weights.data = net1.A.values.data
 net2.bias.data = net1.bias.data
 
@@ -33,7 +34,7 @@ input1 = torch.randn(batchsize, len(nodeNames), dtype=torch.double, requires_gra
 input2 = input1.clone().detach().requires_grad_(True)
 
 net1 = bionetwork.bionetworkAutoGrad(networkList, len(nodeNames), parameters['iterations'])
-net2 = bionetwork.bionet(networkList, len(nodeNames), MOA, parameters, torch.double)
+net2 = bionetwork.bionet(networkList, len(nodeNames), MOA, parameters, activationFunction, torch.double)
 
 net2.weights.data = net1.A.values.data.detach().clone()
 net2.bias.data = net1.bias.data.detach().clone()
