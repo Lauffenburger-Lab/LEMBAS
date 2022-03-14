@@ -1,0 +1,19 @@
+Source	Target	Type	Value
+L1	R1	Weight	1
+L2	R2	Weight	1
+R1	S1	Weight	1
+R2	S2	Weight	1
+S1	S2	Weight	-1
+S1	R1	Weight	1.4
+R2	S1	Weight	-0.9
+S2	T1	Weight	2
+R1		Bias	0
+R2		Bias	0
+S1		Bias	0
+S2		Bias	0
+T1		Bias	0
+L1		Bias	0
+L2		Bias	0
+T1		Projection	1.3
+L1		Input	1.0
+L2		Input	1.0

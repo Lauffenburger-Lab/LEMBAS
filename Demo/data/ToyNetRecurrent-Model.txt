@@ -1,0 +1,9 @@
+source	target	direction	stimulation	inhibition	sources	references
+L1	R1	1	1	0		toyNet	
+L2	R2	1	1	0		toyNet	
+R1	S1	1	1	0		toyNet	
+R2	S2	1	1	0		toyNet	
+S1	S2	1	0	1		toyNet	
+S1	R1	1	1	0		toyNet	
+R2	S1	1	0	1		toyNet	
+S2	T1	1	1	0		toyNet	
