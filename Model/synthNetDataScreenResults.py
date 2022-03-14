@@ -6,7 +6,18 @@ import plotting
 import pandas
 from scipy.stats import pearsonr
 import seaborn as sns
-import matplotlib.patches as patches
+import copy
+from matplotlib import cm
+from matplotlib.colors import ListedColormap
+
+def loadModel(refModel, fileName):
+    #work around to copy weights and bias values 
+    #because class structure has been updated since the run
+    curModel = torch.load(fileName)
+    model = copy.deepcopy(refModel)
+    model.network.weights.data = curModel.network.weights.data.clone()
+    model.network.bias.data = curModel.network.bias.data.clone()
+    return model
 
 def hashArray(array, hashMap):
     outputArray = array.copy()
@@ -41,12 +52,12 @@ internalNodes = numpy.logical_not(numpy.logical_or(numpy.isin(nodeNames, inName)
 
 bionetParams = bionetwork.trainingParameters(iterations = 150, clipping=1, leak=0.01)
 
-model = bionetwork.model(networkList, nodeNames, modeOfAction, inputAmplitude, projectionAmplitude, inName, outName, bionetParams, torch.double)
+model = bionetwork.model(networkList, nodeNames, modeOfAction, inputAmplitude, projectionAmplitude, inName, outName, bionetParams)
 model.inputLayer.weights.requires_grad = False
 model.projectionLayer.weights.requires_grad = False
 model.network.preScaleWeights()
 
-parameterizedModel = bionetwork.model(networkList, nodeNames, modeOfAction, inputAmplitude, projectionAmplitude, inName, outName, bionetParams, torch.double)
+parameterizedModel = bionetwork.model(networkList, nodeNames, modeOfAction, inputAmplitude, projectionAmplitude, inName, outName, bionetParams)
 parameterizedModel = bionetwork.loadParam('synthNetScreen/equationParams.txt', parameterizedModel, nodeNames)
 
 
@@ -66,7 +77,7 @@ sampleCorrelations = numpy.zeros((nExperiments, 2))
 # testFit = numpy.zeros(len(conditionOrder))
 
 for i in range(nExperiments):
-    curModel = torch.load('synthNetScreen/model_' + str(i) + '.pt')
+    curModel = loadModel(model, 'synthNetScreen/model_' + str(i) + '.pt')
     curX = torch.load('synthNetScreen/X_' + str(i) + '.pt')
 
     #Train
@@ -119,7 +130,7 @@ plt.xlabel('Train data size')
 plt.ylabel('Test correlation')
 
 #%%
-curModel = torch.load('synthNetScreen/model_14.pt')
+curModel = loadModel(model, 'synthNetScreen/model_14.pt')
 curX = torch.load('synthNetScreen/X_14.pt')
 
 plt.figure()
@@ -144,8 +155,7 @@ plt.legend(['Weight r {:.2f}'.format(r1), 'Bias r {:.2f}'.format(r2)], frameon=F
 plt.gca().axis('equal')
 
 
-
-
+#%%
 #Train
 Yhat, _ = curModel(curX)
 Y, _ = parameterizedModel(curX)
@@ -156,19 +166,49 @@ YhatTest, YhatFull = curModel(Xtest)
 
 #srlevel = bionetwork.getAllSpectralRadius(curModel, YhatFull)
 
+plt.rcParams["figure.figsize"] = (4,3)
 plt.figure()
 A = YhatTest.detach().numpy().flatten()
 B = Ytest.detach().numpy().flatten()
 df = pandas.DataFrame((A, B), index = ['Model', 'Reference']).T
-plt.rcParams["figure.figsize"] = (4,3)
-sns.histplot(df, x="Model", y="Reference", bins=100, cbar=True, cbar_kws={'label': 'number of preditions'}, vmax=50)
-plt.gca().axis('equal')
+df.to_csv('figures/syntheticNet/syntheticModelVsPredict.tsv', sep='\t')
+
+#%%
+
+blues = cm.get_cmap('Blues', 256)
+newcolors = blues(numpy.linspace(0, 1, 256))
+newcolors = newcolors[75:, :]
+blues = ListedColormap(newcolors)
+
+
+df = pandas.read_csv('figures/syntheticNet/syntheticModelVsPredict.tsv', sep='\t', index_col=0)
+axisScale = 100
+
+counts, rangeX, rangeY = numpy.histogram2d(df['Model'].values, df['Reference'].values, bins=axisScale, range=[[0, 1], [0, 1]])
+counts_transformed = numpy.log10(counts+1)
+ax = sns.heatmap(counts_transformed.T, mask=counts_transformed==0, vmin=0, cbar_kws={'label': 'log10(#preditions + 1)'}, cmap=blues) #cmap="Blues", 
+ax.invert_yaxis()
+for _, spine in ax.spines.items():
+    spine.set_visible(True)
+#sns.histplot(df, x="Model", y="Reference", bins=100, cbar=True, cbar_kws={'label': 'number of preditions'}, vmax=50)
+ax.axis('equal')
 plt.xlabel('fit.')
 plt.ylabel('ref.')
-plt.gca().set_xticks([0,0.5,1])
-plt.gca().set_yticks([0,0.5,1])
-r, p = pearsonr(A, B)
-plt.text(0, 0.95, 'r {:.2f}'.format(r))
+plt.gca().set_xticks(numpy.linspace(0, axisScale, 5))
+plt.gca().set_yticks(numpy.linspace(0, axisScale, 5))
+plt.gca().set_xlim([0, axisScale])
+plt.gca().set_ylim([0, axisScale])
+plt.gca().set_xticklabels(numpy.linspace(0, 1, 5), rotation = 0)
+plt.gca().set_yticklabels(numpy.linspace(0, 1, 5))
+plt.gca().set_xlabel('Model')
+plt.gca().set_xlabel('Reference')
+r, p = pearsonr(df['Model'].values, df['Reference'].values)
+plt.text(0, axisScale *0.9, 'r {:.2f}'.format(r))
+
+
+plt.savefig('figures/syntheticNet/syntheticModelVsPredict.svg')
+
+#%%
 
 plt.figure()
 plt.rcParams["figure.figsize"] = (3,3)
