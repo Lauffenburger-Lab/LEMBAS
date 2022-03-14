@@ -136,8 +136,14 @@ class bionetworkFunction(torch.autograd.Function):
 
         xhat = numpy.zeros(bIn.shape, dtype = bIn.dtype)
         #xhat = numpy.random.rand(bIn.shape[0], bIn.shape[1]).astype(bIn.dtype)
+        xhatBefore = xhat.copy()
 
         for i in range(parameters['iterations']):
+            if i>40: #normally takes around 40 iterations to reach steady state
+                if i>41:
+                    if numpy.sum(numpy.abs(xhat-xhatBefore))<1e-6:
+                        break            
+                xhatBefore = xhat.copy()            
             xhat = A.dot(xhat)
             xhat += bIn
             xhat = activation(xhat, parameters['leak'])
@@ -164,8 +170,14 @@ class bionetworkFunction(torch.autograd.Function):
         #grad = numpy.random.randn(gradIn.shape[0], gradIn.shape[1]).astype(bIn.dtype)
         deltaX = ctx.xRaw.copy()
         deltaX = ctx.deltaActivation(deltaX, ctx.parameters['leak'])
+        gradBefore = grad.copy() 
 
         for i in range(ctx.parameters['iterations']):
+            if i>20:   #normally takes around 30 iterations to reach steady state
+                if i>21:
+                    if numpy.sum(numpy.abs(grad-gradBefore))<1e-6:            
+                        break
+                gradBefore = grad.copy()   
             grad = deltaX * (AT.dot(grad) + gradIn)
             #as a precaution clipping with tanh for |gradients| > clipping val
             grad = gradCliping(grad, ctx.parameters['clipping'])
@@ -225,7 +237,10 @@ def spectralLoss(signalingModel, YhatFull, weights, expFactor = 20, lb=0.5):
 def uniformLoss(curState, dataIndex, YhatFull, targetMin = 0, targetMax = 0.99, maxConstraintFactor = 10):
     data = curState.detach().clone()
     data[dataIndex, :] = YhatFull
+    loss = uniformLossBatch(data, targetMin = targetMin, targetMax = targetMax, maxConstraintFactor = maxConstraintFactor)
+    return loss
 
+def uniformLossBatch(YhatFull, targetMin = 0, targetMax = 0.99, maxConstraintFactor = 10):
     targetMean = (targetMax-targetMin)/2
     targetVar= (targetMax-targetMin)**2/12
 
@@ -236,10 +251,10 @@ def uniformLoss(curState, dataIndex, YhatFull, targetMin = 0, targetMax = 0.99, 
     maxFactor = factor
     maxConstraintFactor = factor * maxConstraintFactor
 
-    nodeMean = torch.mean(data, dim=0)
-    nodeVar = torch.mean(torch.square(data-nodeMean), dim=0)
-    maxVal, _ = torch.max(data, dim=0)
-    minVal, _ = torch.min(data, dim=0)
+    nodeMean = torch.mean(YhatFull, dim=0)
+    nodeVar = torch.mean(torch.square(YhatFull-nodeMean), dim=0)
+    maxVal, _ = torch.max(YhatFull, dim=0)
+    minVal, _ = torch.min(YhatFull, dim=0)
 
     meanLoss = meanFactor * torch.sum(torch.square(nodeMean - targetMean))
     varLoss =  varFactor * torch.sum(torch.square(nodeVar - targetVar))
@@ -249,7 +264,6 @@ def uniformLoss(curState, dataIndex, YhatFull, targetMin = 0, targetMax = 0.99, 
 
     loss = meanLoss + varLoss + minloss + maxLoss + maxConstraint
     return loss
-
 # class bionetworkFunction2(torch.autograd.Function):
 #     @staticmethod
 #     def forward(ctx, x, weights, bias, A, networkList, parameters):
@@ -387,7 +401,7 @@ def reduceSpectralRadius(model, spectralTarget, localX, maxIter = 100):
         spectralRadius = torch.zeros(N, dtype=torch.double)
         spectralRegulation = torch.zeros(N, dtype=torch.double)
         for i in range(N):
-            activationFactor = oneStepDeltaActivationFactor(localFull[i,:].flatten(), leak).detach()
+            activationFactor = model.network.oneStepDeltaActivationFactor(localFull[i,:].flatten(), leak).detach()
             weightFactor = activationFactor[networkList[0]]
             multipliedWeightFactor = model.network.weights * weightFactor
             sr = model.network.getSpectralRadius(multipliedWeightFactor)
@@ -495,7 +509,14 @@ class bionet(nn.Module):
     
     def signRegularization(self, MoAFactor):
         return MoAFactor * torch.sum(torch.abs(self.weights[self.getViolations(self.weights)]))
-    
+
+    def balanceWeights(self):
+        positiveWeights = self.weights.data>0
+        negativeWeights = positiveWeights==False
+        positiveSum = torch.sum(self.weights.data[positiveWeights])
+        negativeSum = -torch.sum(self.weights.data[negativeWeights])
+        factor = positiveSum/negativeSum
+        self.weights.data[negativeWeights] = factor * self.weights.data[negativeWeights]    
 
     # def getSpectralLoss(self):
     #     self.A.data = self.weights.detach().numpy()
@@ -760,7 +781,7 @@ def trainingParameters(**attributes):
             params[curKey] = attributes[curKey]
 
     if 'spectralTarget' in attributes.keys():
-        params[curKey] = attributes[curKey]
+        params['spectralTarget'] = attributes['spectralTarget']
     else:
         params['spectralTarget'] = numpy.exp(numpy.log(params['targetPrecision'])/params['iterations'])
 
