@@ -41,6 +41,14 @@ url = 'https://zenodo.org/record/1472794/files/supplement_code.zip?download=1'
 urllib.request.urlretrieve(url, 'Viability data/processed data/supplement_code.zip')
 
 
+print('Downloading our experimental data')
+url = 'https://zenodo.org/record/6334990/files/metadata.csv?download=1'
+urllib.request.urlretrieve(url, 'TF activities Ligand Screen/data/metadata.csv')
+
+url = 'https://zenodo.org/record/6334990/files/single_ligand.loom?download=1'
+urllib.request.urlretrieve(url, 'TF activities Ligand Screen/data/Smartseq2_Multisample_human_single_2021-12-15T21-07-41.loom')
+
+
 print('Unziping data')
 shutil.unpack_archive('TF activities/raw/E-GEOD-46903.processed.1.zip', 'TF activities/raw/E-GEOD-46903.processed.1')
 gunzip('Viability data/data CCLE/CCLE_RNAseq_genes_rpkm_20180929.gct.gz', 'Viability data/data CCLE/CCLE_RNAseq_genes_rpkm_20180929.gct')
