@@ -1,0 +1,15 @@
+source	target	direction	stimulation	inhibition	sources	references
+P05412	viability	1	1	0	Fröhlich2018	30503647
+P15407	viability	1	1	0	Fröhlich2018	30503647
+P01100	viability	1	1	0	Fröhlich2018	30503647
+P42224	viability	1	1	0	Fröhlich2018	30503647
+P40763	viability	1	1	0	Fröhlich2018	30503647
+P42229	viability	1	1	0	Fröhlich2018	30503647
+P51692	viability	1	1	0	Fröhlich2018	30503647
+P01106	viability	1	1	0	Fröhlich2018	30503647
+P19419	viability	1	1	0	Fröhlich2018	30503647
+P16220	viability	1	1	0	Fröhlich2018	30503647
+P15336	viability	1	1	0	Fröhlich2018	30503647
+Q12778	viability	1	0	1	Fröhlich2018	30503647
+O43524	viability	1	0	1	Fröhlich2018	30503647
+P98177	viability	1	0	1	Fröhlich2018	30503647
