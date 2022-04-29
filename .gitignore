@@ -1,3 +1,17 @@
-
+Model/synthNetTime/log
+Model/synthNetScreen/log
+Model/CVligandScreen/log
+Model/viabilityModel/cellLineRKPMZscored.tsv
 Model/simulations/
 Model/__pycache__/
+Model/*.sh
+Demo/src/__pycache__
+TF activities/.Rhistory
+TF activities Ligand screen/.Rhistory
+Network Construction/annotation/omnipath_webservice_interactions__recent.tsv
+TF activities Ligand Screen/data/Smartseq2_Multisample_human_single_2021-12-15T21-07-41.loom
+TF activities Ligand Screen/data/counts.tsv
+TF activities Ligand Screen/data/complete_meta.csv
+TF activities Ligand Screen/results/counts.tsv
+TF activities Ligand Screen/filtered/*
+TF activities Ligand Screen/data/annotation/omnipath_webservice_interactions__recent.tsv

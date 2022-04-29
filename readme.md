@@ -1,22 +1,20 @@
-# Artificial Signaling Network (ASN)
+# LEMBAS - Large-scale knowledge-EMBedded Artificial Signaling-networks
 
-- The Artificial Signaling Network enables genome-scale simulation of intracellular signaling.
+- LEMBAS enables genome-scale simulation of intracellular signaling.
 
 - Abstract:
 
-  Mammalian cells adapt their functional state in response to external signals in form
-  of ligands that bind receptors on the cell-surface. Mechanistically, this involves
-  signal-processing through a complex network of molecular interactions that govern
-  transcription factor (TF) activity patterns. Computer simulations of the information
-  flow through this network could help predict cellular responses in health and disease.
-  Here we develop a recurrent neural network constrained by prior knowledge of the
-  signaling network with ligand concentrations as input, TF activity as output and 
-  signaling molecules as hidden nodes. Simulations are assumed to reach steady state,
-  and we regularize the parameters to enforce this. Using synthetic data, we train
-  models that generalize to unseen data and predict the effects of gene knockouts. We 
-  also fit models to a small experimental data set from literature and confirm the 
-  predictions using cross validation. This demonstrates the feasibility of simulating
-  intracellular signaling at the genome-scale.
+  Mammalian cells adapt their functional state in response to external signals in form of ligands that bind
+  receptors on the cell-surface. Mechanistically, this involves signal-processing through a complex network 
+  of molecular interactions that govern transcription factor activity patterns. Computer simulations of the 
+  information flow through this network could help predict cellular responses in health and disease. Here we 
+  develop a recurrent neural network framework constrained by prior knowledge of the signaling network with 
+  ligand-concentrations as input and transcription factor -activity as output. Applied to synthetic data, it
+  predicts unseen test-data (Pearson correlation r=0.98) and the effects of gene knockouts (r=0.8). We 
+  stimulate macrophages with 59 different ligands, with and without addition of lipopolysaccharide, and 
+  collect transcriptomics data. The framework predicts this data under cross-validation (r=0.8) and knockout
+  simulations suggest a role for RIPK1 in modulating the lipopolysaccharide response. This work demonstrates
+  the feasibility of genome-scale simulations of intracellular signaling.
 
 - Reference: -
 
