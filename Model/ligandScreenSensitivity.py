@@ -117,6 +117,7 @@ medianElasticity = numpy.nanmedian(elasticity, axis=0)
 
 
 #%%
+folder = '../model/figures/Figure 6/'
 plt.rcParams["figure.figsize"] = (6, 3)
 plt.figure()
 internalNodeName = numpy.array(nodeNameGene)[internalNodes]
@@ -135,9 +136,11 @@ df = pandas.DataFrame(minMaxInternal, index=outNameGene, columns=internalNodeNam
 #df.to_csv('results/elasticity.tsv', sep='\t')
 df = df.loc[:,superElastic]
 #sns.clustermap(df, cmap='RdBu_r', center=0, vmin=-1, vmax=1, yticklabels=True, figsize=(8,10), dendrogram_ratio=0.15, cbar_pos=(0.02, 0.02, 0.05, 0.1))
-sns.clustermap(df, cmap='RdBu_r', center=0, vmin=-1, vmax=1, figsize=(6,3), cbar_pos=(0.05, 0.05, 0.03, 0.13), dendrogram_ratio=0.15)
-plt.savefig('figures/ligand screen KO/sensitivity.svg')
+h = sns.clustermap(df, cmap='RdBu_r', center=0, vmin=-1, vmax=1, figsize=(6,3), cbar_pos=(0.05, 0.05, 0.03, 0.13), dendrogram_ratio=0.15)
+plt.savefig(folder + 'G.svg')
+h.data2d.to_csv(folder + 'G.tsv', sep='\t')
 
-
-
+meanElasticisty = numpy.mean(numpy.abs(df), axis=0)
+meanElasticisty = meanElasticisty.sort_values(ascending=False)
+meanElasticisty.to_csv('figures/ligand screen KO/sorted_sensitivity.tsv', sep='\t')
 

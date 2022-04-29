@@ -38,6 +38,8 @@ model = bionetwork.model(networkList, nodeNames, modeOfAction, inputAmplitude, p
 model = bionetwork.loadParam('synthNetModel/equationParams.txt', model, nodeNames)
 
 
+folder = 'figures/Figure 4/'
+
 #%%
 N=100
 simultaniousInput = 5
@@ -50,8 +52,9 @@ conditions = bionetwork.generateConditionNames(data, inNameGenes)
 
 Yhat, YhatFull = model(data)
 df = pandas.DataFrame(Yhat.T.detach().numpy(), index=outNameGenes, columns=conditions)
-sns.clustermap(df, cmap='RdBu_r', vmin=0, vmax=1) #, yticklabels=True
-plt.savefig('figures/generativeSynthnet/parameterized.svg')
+h = sns.clustermap(df, cmap='RdBu_r', vmin=0, vmax=1) #, yticklabels=True
+plt.savefig(folder + 'C.svg')
+h.data2d.to_csv(folder + 'C.tsv', sep='\t')
 
 #%%
 #Illustrate transients
@@ -95,7 +98,10 @@ model.load_state_dict(curState)
 
 Yhat, YhatFull = model(data)
 df = pandas.DataFrame(Yhat.T.detach().numpy(), index=outNameGenes, columns=conditions)
-sns.clustermap(df, cmap='RdBu_r', vmin=0, vmax=1) #, yticklabels=True
+h = sns.clustermap(df, cmap='RdBu_r', vmin=0, vmax=1) #, yticklabels=True
+plt.savefig(folder + 'B.svg')
+h.data2d.to_csv(folder + 'B.tsv', sep='\t')
+
 plt.savefig('figures/generativeSynthnet/random.svg')
 
 plt.figure()
@@ -336,10 +342,10 @@ for i in range(len(simultaniousInput)):
     r, p = pearsonr(Y.flatten(), Yhat.flatten())
     results[i, 2] = r
 
-
-plt.plot(simultaniousInput, results[:,0])
+df = pandas.DataFrame((results[:,[0, 2]]), columns=['Extrapolation', 'Best fit'], index=simultaniousInput)
+plt.plot(simultaniousInput, df['Extrapolation'])
 #plt.plot(simultaniousInput, results[:,1])
-plt.plot(simultaniousInput, results[:,2])
+plt.plot(simultaniousInput,  df['Best fit'])
 
 #plt.plot(simultaniousInput, results[:,2])
 plt.ylim([0, 1])
@@ -348,4 +354,5 @@ plt.xticks(numpy.arange(1, 11))
 plt.xlabel('Simultanious Input')
 plt.ylabel('Correlation')
 plt.legend(['Extrapolation', 'Best fit'], frameon=False)  #'Best fit',
-
+plt.savefig(folder + 'D.svg')
+df.to_csv(folder + 'D.tsv', sep='\t')

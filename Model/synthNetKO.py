@@ -120,6 +120,7 @@ df = pandas.DataFrame((resultsModel.flatten(), resultsRef.flatten()), index = ['
 df.to_csv('figures/syntheticNet/syntheticKO.tsv', sep='\t') 
 
 #%%
+folder = 'figures/Figure 5/'
 plt.rcParams["figure.figsize"] = (4,3)
 plt.figure()
 df = pandas.read_csv('figures/syntheticNet/syntheticKO.tsv', sep='\t', index_col=0)
@@ -154,4 +155,6 @@ plt.text(0, axisScale * 0.9, 'r {:.2f}'.format(r))
 plt.gca().axhline(y=axisScale *0.5, color='k', alpha=0.3)
 plt.gca().axvline(x=axisScale *0.5, color='k', alpha=0.3)
 
-plt.savefig('figures/syntheticNet/syntheticKO.svg')
+plt.savefig(folder + 'C.svg')
+df = pandas.DataFrame(counts_transformed, index=rangeX[:-1], columns=rangeY[:-1])
+df.to_csv(folder + 'C.tsv', sep='\t')

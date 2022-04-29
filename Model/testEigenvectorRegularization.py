@@ -6,13 +6,14 @@ import matplotlib.pyplot as plt
 import time
 import bionetwork
 import torch
+import pandas
 
 
-steps = 300
+steps = 500
 
 networkSize = 100
 density = 0.2
-errorSize = 1e-4
+errorSize = 1e-3
 noise = 1e-10
 initialEig = 1.2
 targetEig = 0.95
@@ -72,23 +73,14 @@ aAfter = A.copy()
 aAfter.data = weights.detach().numpy()
 
 #%%
+folder = 'figures/Figure 3/'
+
 plt.rcParams["figure.figsize"] = (3,3)
 plt.plot(range(len(storeEig)), storeEig, 'o')
 plt.plot([0, steps], [targetEig, targetEig])
 plt.ylabel('Spectral radius')
 plt.xlabel('Steps')
 
-
-plt.figure()
-plt.plot(aAfter.data, aBefore.data, 'o', alpha=0.2)
-plt.xlabel('Weights after')
-plt.ylabel('Weights before')
-distance = numpy.sum(numpy.square(aAfter.data - aBefore.data))
-#plt.text(-1, 1, 'SS = {:.3f}'.format(distance))
-#plt.plot([-1, 1], [-1, 1], transform=ax2.transAxes)
-plt.plot([-1, 1], [-1, 1], 'k-')
-#plt.grid(True)
-plt.gca().set_aspect('equal', 'box')
 
 # plt.figure()
 # plt.plot(aBefore.data, aBefore.data-aAfter.data, 'o', color='black')
@@ -104,6 +96,11 @@ plt.rcParams["figure.figsize"] = (6,6)
 plt.figure()
 eBefore = eig(aBefore.todense(), left = False, right=False)
 eAfter = eig(aAfter.todense(), left = False, right=False)
+
+dfBefore = pandas.DataFrame((eBefore.real, eBefore.imag), index=['Real', 'Imaginary']).T
+dfAfter = pandas.DataFrame((eAfter.real, eAfter.imag), index=['Real', 'Imaginary']).T
+
+
 axisLim = 1.2
 for i in [1, 2]:
     plt.subplot(1,2,i)
@@ -122,15 +119,34 @@ for i in [1, 2]:
     plt.ylim([-axisLim, axisLim])
 plt.tight_layout()
 
+plt.savefig(folder + 'B.svg')
+dfBefore.to_csv(folder + 'B_before.tsv', sep='\t')
+dfAfter.to_csv(folder + 'B_after.tsv', sep='\t')
+
+plt.rcParams["figure.figsize"] = (3,3)
+plt.figure()
+df = pandas.DataFrame((aAfter.data, aBefore.data), index=['Before', 'After']).T
+plt.plot(aAfter.data, aBefore.data, 'o', alpha=0.2)
+plt.xlabel('Weights after')
+plt.ylabel('Weights before')
+distance = numpy.sum(numpy.square(aAfter.data - aBefore.data))
+#plt.text(-1, 1, 'SS = {:.3f}'.format(distance))
+#plt.plot([-1, 1], [-1, 1], transform=ax2.transAxes)
+plt.plot([-1, 1], [-1, 1], 'k-')
+#plt.grid(True)
+plt.gca().set_aspect('equal', 'box')
+plt.savefig(folder + 'C.svg')
+df.to_csv(folder + 'C.tsv', sep='\t')
 
 #%%
-plt.rcParams["figure.figsize"] = (4,4)
+plt.rcParams["figure.figsize"] = (8,4)
 plt.figure()
-numberOfSteps = 60
-amplitude = 0.01
+numberOfSteps = 100
+amplitude = 0.001
+j = 0
 
 resultsBefore = numpy.zeros((numberOfSteps+1, networkSize))
-resultsBefore[0,:] = amplitude * numpy.random.rand(networkSize)
+resultsBefore[0,:] = amplitude * numpy.random.randn(networkSize)
 resultsBefore[0,0] = amplitude
 
 
@@ -138,7 +154,8 @@ resultsBefore[0,0] = amplitude
 for i in range(numberOfSteps):
     resultsBefore[i+1,:] = aBefore.dot(resultsBefore[i,:])
 
-j = 0
+plt.subplot(1,2,1)
+
 for i in range(numberOfSteps-1):
     plt.plot(resultsBefore[i:(i+2), j], resultsBefore[(i+1):(i+3), j], 'k-', alpha=0.2)
 
@@ -147,21 +164,20 @@ plt.text(resultsBefore[0, j], resultsBefore[1, j], 'Start')
 plt.plot(resultsBefore[-2, j], resultsBefore[-1, j], 'o', color='r')
 plt.text(resultsBefore[-2, j], resultsBefore[-1, j], 'End')
 plt.gca().set_aspect('equal', 'box')
+plt.axis('equal')
 plt.axhline(0, color='black')
 plt.axvline(0, color='black')
-plt.xlabel('n')
-plt.ylabel('n+1')
+plt.xlabel('Deviation_n')
+plt.ylabel('Deviation_n+1')
 
 
-numberOfSteps = 100
 resultsAfter = numpy.zeros((numberOfSteps+1, networkSize))
 resultsAfter[0,:] = resultsBefore[0,:].copy()
 
 for i in range(numberOfSteps):
     resultsAfter[i+1,:] = aAfter.dot(resultsAfter[i,:])
 
-plt.figure()
-j = 0
+plt.subplot(1,2,2)
 colorProperty = ['k', 'b']
 for i in range(numberOfSteps-1):
     plt.plot(resultsAfter[i:(i+2), j], resultsAfter[(i+1):(i+3), j], 'k-', alpha=0.2)
@@ -171,11 +187,15 @@ plt.text(resultsAfter[0, j], resultsAfter[1, j], 'Start')
 plt.plot(resultsAfter[-2, j], resultsAfter[-1, j], 'o', color='r')
 plt.text(resultsAfter[-2, j], resultsAfter[-1, j], 'End')
 plt.gca().set_aspect('equal', 'box')
+plt.axis('equal')
 plt.axhline(0, color='black')
 plt.axvline(0, color='black')
 plt.xlabel('Deviation_n')
 plt.ylabel('Deviation_n+1')
 #plt.plot([0, 0.3], [0, 0.3], 'k-')
-
+plt.tight_layout()
+plt.savefig(folder + 'D.svg')
+df = pandas.DataFrame((resultsBefore[:,j], resultsAfter[:,j]), index=['Before', 'After']).T
+df.to_csv(folder + 'D_before.tsv', sep='\t')
 
 

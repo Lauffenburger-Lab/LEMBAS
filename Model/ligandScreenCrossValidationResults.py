@@ -34,7 +34,7 @@ sampleName = ligandInput.index.values
 X = torch.tensor(ligandInput.values.copy(), dtype=torch.double)
 Y = torch.tensor(TFOutput.values, dtype=torch.double)
 
-
+folder = 'figures/Figure 6/'
 #%%
 testedConditions = CVconditions['Condition'].values
 dictionary = dict(zip(sampleName, list(range(len(sampleName)))))
@@ -149,7 +149,8 @@ A = predictionY.detach().numpy()
 B = referenceY.detach().numpy()
 # A = A[:, failedTfs==False]
 # B = B[:, failedTfs==False]
-plt.scatter(A, B, alpha=0.02)
+df = pandas.DataFrame((A.flatten(),B.flatten()), index=['Prediction', 'Data']).T
+plt.scatter(df['Prediction'], df['Data'], alpha=0.02)
 r, p = pearsonr(A.flatten(), B.flatten())
 
 # A = predictionY[:, failedTfs].detach().numpy()
@@ -162,7 +163,8 @@ plt.gca().set_xticks([0, 0.5, 1])
 plt.gca().set_yticks([0, 0.5, 1])
 plotting.lineOfIdentity()
 plt.text(0, 0.9, 'r {:.2f}\np {:.2e}'.format(r, p))
-plt.savefig("figures/ligand screen CV/testPerformance.svg")   
+plt.savefig(folder + 'C.svg')
+df.to_csv(folder + 'C.tsv', sep='\t')
 
 # axisScale = 40
 # counts, rangeX, rangeY = numpy.histogram2d(A.flatten(), B.flatten(), bins=axisScale, range=[[0, 1], [0, 1]])
@@ -195,8 +197,12 @@ plt.savefig("figures/ligand screen CV/testPerformance.svg")
 #sampleCorrelations =
 
 plt.figure()
+
 trainCorrelations = numpy.mean(tfCorrelations, axis=0)
-plt.scatter(trainCorrelations,predictionCorrelations, alpha=0.5)
+
+df = pandas.DataFrame((trainCorrelations, predictionCorrelations), columns=outNameGene, index=['Train', 'Test']).T
+
+plt.scatter(trainCorrelations, predictionCorrelations, alpha=0.5)
 #plt.scatter(scrambledCorrelation, trainCorrelations)
 
 failedTFCutof = 0.3
@@ -218,7 +224,8 @@ reg = LinearRegression().fit(predictionCorrelations.reshape(-1, 1), trainCorrela
 Y = numpy.array([0, 1])
 X = reg.predict(Y.reshape(-1, 1))
 plt.plot(X, Y, color = 'tab:orange')
-plt.savefig("figures/ligand screen CV/trainVSTestTF.svg")   
+plt.savefig(folder + 'D.svg')
+df.to_csv(folder + 'D.tsv', sep='\t')
 
 # plt.figure()
 # plt.scatter(scrambledCorrelation, predictionCorrelations)

@@ -99,9 +99,9 @@ class linearNetwork(torch.nn.Module):
     def activationFunction(self, x):
         if self.aFunction == 'MML':
             x = self.MMLactivation(x)
-        elif self.aFunction == 'relu':
+        elif self.aFunction == 'ReLU':
             x = torch.nn.functional.leaky_relu(x)
-        elif self.aFunction == 'sigmoid':
+        elif self.aFunction == 'Sigmoid':
             x = torch.sigmoid(x)
         return x
 
@@ -173,7 +173,7 @@ ODEfiles = ['independentActivation.tsv',
             'competitiveInhibition.tsv']
 ODENames = ['A', 'I', 'CA', 'CI']
 
-activationFunction = ['sigmoid', 'relu', 'MML']
+activationFunction = ['Sigmoid', 'ReLU', 'MML']
 numberOfLayers = [0, 1]
 
 
@@ -209,11 +209,17 @@ resultsLayer1 = meanResults[:,:,1]
 df0 = pandas.DataFrame(resultsLayer0, index=ODENames, columns = activationFunction)
 df1 = pandas.DataFrame(resultsLayer1, index=ODENames, columns = activationFunction)
 
-
+folder = 'figures/Figure 1/C/'
 plt.rcParams["figure.figsize"] = (3,2)
 sns.heatmap(df0, annot=True, fmt="2.3f", cmap='gray', vmin=0.85, vmax=1)
+plt.savefig(folder + 'no layer.svg')
+df0.to_csv(folder + 'no layer.tsv', sep='\t')
+
 plt.figure()
 sns.heatmap(df1, annot=True, fmt="2.3f", cmap='gray', vmin=0.85, vmax=1)
+plt.savefig(folder + 'one layer.svg')
+df1.to_csv(folder + 'one layer.tsv', sep='\t')
+numpy.save(folder + 'results.np', results)
 
 # #%%
 # plt.semilogy(range(len(storeLoss)), storeLoss, 'o', color='black')

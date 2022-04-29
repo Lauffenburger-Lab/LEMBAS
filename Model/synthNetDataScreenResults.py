@@ -101,18 +101,27 @@ predictingAverageTF = r
 
 
 #%%
+folder = 'figures/Figure 5/'
+
 plt.rcParams["figure.figsize"] = (3,3)
 allLiganValues = numpy.unique(dataConditions['Ligands'].values)
 allDataValues = numpy.unique(dataConditions['DataSize'].values)
 dataPositions = list(range(len(allDataValues)))
 dataSizeLookup = dict(zip(allDataValues, dataPositions))
 
+result = numpy.zeros((len(dataPositions), len(allLiganValues)))
+
 for i in range(len(allLiganValues)):
     conditionFilter = dataConditions['Ligands'].values == allLiganValues[i]
     dataSize = dataConditions.loc[conditionFilter, 'DataSize'].values
     positions = hashArray(dataSize, dataSizeLookup)
     correlation = sampleCorrelations[conditionFilter,1]
-    plt.plot(positions, correlation)
+#    plt.plot(positions, correlation)
+    result[:,i] = correlation
+
+df = pandas.DataFrame(result, index=dataPositions, columns=allLiganValues)
+plt.plot(df)
+df.index = allDataValues
 
 #positions = hashArray(dataConditions['DataSize'].values, dataSizeLookup)
 #plt.scatter(positions, sampleCorrelations[:,0], color='gray')
@@ -128,6 +137,13 @@ plt.gca().set_xticklabels(dataPositions)
 plt.gca().set_xticklabels(allDataValues)
 plt.xlabel('Train data size')
 plt.ylabel('Test correlation')
+
+plt.savefig(folder + 'A.svg')
+df.to_csv(folder + 'A.tsv', sep='\t')
+
+df = pandas.DataFrame(result, index=allDataValues, columns=allLiganValues)
+plt.plot(df)
+df.index = allDataValues
 
 #%%
 curModel = loadModel(model, 'synthNetScreen/model_14.pt')
@@ -167,14 +183,15 @@ YhatTest, YhatFull = curModel(Xtest)
 #srlevel = bionetwork.getAllSpectralRadius(curModel, YhatFull)
 
 plt.rcParams["figure.figsize"] = (4,3)
-plt.figure()
+
 A = YhatTest.detach().numpy().flatten()
 B = Ytest.detach().numpy().flatten()
 df = pandas.DataFrame((A, B), index = ['Model', 'Reference']).T
 df.to_csv('figures/syntheticNet/syntheticModelVsPredict.tsv', sep='\t')
 
 #%%
-
+plt.rcParams["figure.figsize"] = (4,3)
+plt.figure()
 blues = cm.get_cmap('Blues', 256)
 newcolors = blues(numpy.linspace(0, 1, 256))
 newcolors = newcolors[75:, :]
@@ -192,8 +209,6 @@ for _, spine in ax.spines.items():
     spine.set_visible(True)
 #sns.histplot(df, x="Model", y="Reference", bins=100, cbar=True, cbar_kws={'label': 'number of preditions'}, vmax=50)
 ax.axis('equal')
-plt.xlabel('fit.')
-plt.ylabel('ref.')
 plt.gca().set_xticks(numpy.linspace(0, axisScale, 5))
 plt.gca().set_yticks(numpy.linspace(0, axisScale, 5))
 plt.gca().set_xlim([0, axisScale])
@@ -201,12 +216,14 @@ plt.gca().set_ylim([0, axisScale])
 plt.gca().set_xticklabels(numpy.linspace(0, 1, 5), rotation = 0)
 plt.gca().set_yticklabels(numpy.linspace(0, 1, 5))
 plt.gca().set_xlabel('Model')
-plt.gca().set_xlabel('Reference')
+plt.gca().set_ylabel('Reference')
 r, p = pearsonr(df['Model'].values, df['Reference'].values)
 plt.text(0, axisScale *0.9, 'r {:.2f}'.format(r))
 
 
-plt.savefig('figures/syntheticNet/syntheticModelVsPredict.svg')
+plt.savefig(folder + 'B.svg')
+df = pandas.DataFrame(counts_transformed, index=rangeX[:-1], columns=rangeY[:-1])
+df.to_csv(folder + 'B.tsv', sep='\t')
 
 #%%
 

@@ -60,7 +60,7 @@ allTFs = dorotheaData.index.values
 
 outputs = numpy.zeros((len(allTFs), len(allConditions)))
 outputStd = numpy.zeros((len(allTFs), len(allConditions)))
-outputCount = numpy.zeros(len(allConditions))
+outputCount = numpy.zeros(len(allConditions), dtype=int)
 for i in range(len(allConditions)):
     affectedSamples = allConditions[i].split('_')
     affectedLigand = numpy.isin(metaData['ligand'].values, affectedSamples[0])
@@ -73,6 +73,7 @@ for i in range(len(allConditions)):
     outputStd[:, i] = numpy.std(curData, axis=1)
     outputCount[i] = curData.shape[1]
 
+print(outputs.shape)
 
 
 print(allConditions[numpy.argsort(numpy.median(outputStd, axis=0))])
@@ -83,8 +84,12 @@ signalConsistency = numpy.percentile(outputStd, 75, axis=1) < consistencyCutOf
 inconsistentTFs = allTFs[signalConsistency==False]
 print(inconsistentTFs)
 
+conditionsPlusN = numpy.array(allConditions.copy(), dtype=object)
+for i in range(len(conditionsPlusN)):
+    conditionsPlusN[i] = '{:s} (N={:d})'.format(allConditions[i], outputCount[i])
+
 plt.rcParams["figure.figsize"] = (7,20)
-df = pd.DataFrame(outputStd.T, columns = allTFs, index=allConditions)
+df = pd.DataFrame(outputStd.T, columns = allTFs, index=conditionsPlusN)
 order = numpy.argsort(numpy.percentile(df.values, 75, axis=0))
 df = df.iloc[:,order]
 ax = sns.boxplot(data=df, orient='h', showfliers=False)
@@ -121,10 +126,12 @@ df = df.loc[qualityCriteria,:].copy()
 
 #h = sns.clustermap(df, cmap='RdBu_r', vmin=0, vmax=1)
 #sns.set(font_scale=0.7)
+folder = '../model/figures/Figure 6/'
 h = sns.clustermap(df.T, cmap='RdBu_r', vmin=0, vmax=1, xticklabels=True, yticklabels=True, figsize=(15, 20), dendrogram_ratio=0.08, cbar_pos=(0.02, 0.02, 0.02, 0.08))
 h.ax_heatmap.set_xticklabels(h.ax_heatmap.get_xmajorticklabels(), fontsize = 14)
 h.ax_heatmap.set_yticklabels(h.ax_heatmap.get_ymajorticklabels(), fontsize = 14)
-plt.savefig("figures/heatmap.svg")   
+plt.savefig(folder + "B.svg")
+h.data2d.to_csv(folder + 'B.tsv', sep='\t')
 
 df = updateIndexName(df, gene2uniprot)
 df = df.T

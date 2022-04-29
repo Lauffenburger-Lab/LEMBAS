@@ -78,6 +78,7 @@ conditionNr = numpy.argwhere(sampleName==condition).flatten()
 bionetParams = bionetwork.trainingParameters(iterations = 150, clipping=1, leak=0.01)
 model = bionetwork.model(networkList, nodeNames, modeOfAction, 3, 1.2, inName, outName, bionetParams)
 
+folder = 'figures/Figure 6/'
 
 #%%
 #Knock out test
@@ -89,7 +90,7 @@ stateVariableModel = numpy.zeros((nrFolds, nrKO, nrTF))
 stateVariableReference = numpy.zeros((nrFolds, nrTF))
 
 stateVariableModelKnockIn = numpy.zeros((nrFolds, nrKO, nrTF))
-stateVariableReferenceKnockIn = numpy.zeros((nrFolds, nrTF))
+#stateVariableReferenceKnockIn = numpy.zeros((nrFolds, nrTF))
 
 inputX = X[conditionNr,:].reshape(1,-1)
 
@@ -102,7 +103,16 @@ for i in range(nrFolds):
 
     modelOutput, refOutput = runKO(curModel, inputX, knockInLevel)
     stateVariableModelKnockIn[i,:,:] = modelOutput
-    stateVariableReferenceKnockIn[i,:] = refOutput
+    #stateVariableReferenceKnockIn[i,:] = refOutput
+
+#plt.scatter(stateVariableReferenceKnockIn.flatten(), stateVariableReference.flatten())
+
+
+numpy.save(folder + 'Reference', stateVariableReference)
+numpy.save(folder + 'KO', stateVariableModel)
+numpy.save(folder + 'KI', stateVariableModelKnockIn)
+#numpy.save('Reference', stateVariableModel)
+
 
 #%%
 #DisplayResults
@@ -148,14 +158,15 @@ plt.ylim([0, 1.1])
 plt.title(condition)
 print(nodeName[order])
 print(deltaSign[order])
-plt.savefig('figures/ligand screen KO/KO.svg')
+plt.savefig(folder + 'E.svg')
+df.to_csv(folder + 'E.tsv', sep='\t')
 
 #%%
 plt.rcParams["figure.figsize"] = (2, 1.2)
 plt.figure()
 
 topNr = 5
-delta = stateVariableModelKnockIn[:, :, TFNr].squeeze() - stateVariableReferenceKnockIn[:, TFNr]
+delta = stateVariableModelKnockIn[:, :, TFNr].squeeze() - stateVariableReference[:, TFNr]
 delta = delta[conditionFilter,:]
 
 meanDelta = numpy.median(delta, axis=0)
@@ -190,4 +201,5 @@ plt.ylim([0, 0.4])
 plt.title(condition)
 print(nodeName[order])
 print(deltaSign[order])
-plt.savefig('figures/ligand screen KO/KI.svg')
+plt.savefig(folder + 'F.svg')
+df.to_csv(folder + 'F.tsv', sep='\t')

@@ -172,6 +172,7 @@ plotting.finishProgress(stats)
 
 
 #%%
+folder = 'figures/Figure 2/'
 plt.figure()
 #plt.scatter(YFull[:,numpy.argwhere(numpy.isin(nodeNames, 'L1'))].detach().numpy(), YFull[:,numpy.argwhere(numpy.isin(nodeNames, 'S1'))].detach().numpy())
 #plt.figure()
@@ -179,8 +180,9 @@ plt.figure()
 #Plot stats
 # plt.rcParams["figure.figsize"] = (6,3)
 # plt.subplot(1, 2, 1)
+#Data
 plt.rcParams["figure.figsize"] = (3,3)
-plotting.contourPlot(torch.cat((X[:, 0], Xtest[:, 0])), torch.cat((X[:, 1], Xtest[:, 1])), torch.cat((Y, Ytest)))
+df = plotting.contourPlot(torch.cat((X[:, 0], Xtest[:, 0])), torch.cat((X[:, 1], Xtest[:, 1])), torch.cat((Y, Ytest)))
 plt.xticks([0,5,10], labels=['0', '0.5', '1'])
 plt.yticks([0,5,10], labels=['0', '0.5', '1'])
 plt.gca().set_xticks(list(range(0,11)), minor=True)
@@ -191,7 +193,11 @@ plt.gcf().axes[1].set_label(outName[0])
 plt.gca().xaxis.grid(True, 'both', linewidth=1, color=[0,0,0])
 plt.gca().yaxis.grid(True, 'both', linewidth=1, color=[0,0,0])
 
+plt.savefig(folder + 'D.svg')
+df.to_csv(folder + 'D.tsv', sep='\t')
 
+
+#Fit
 plt.figure()
 # plt.subplot(1, 2, 2)
 # plt.rcParams["figure.figsize"] = (6,3)
@@ -213,8 +219,9 @@ plt.rcParams["figure.figsize"] = (3,3)
 plt.figure()
 
 T = numpy.array(range(stats['loss'].shape[0]))
-plt.semilogy(T, plotting.movingaverage(stats['loss'], 10))
-plt.semilogy(T, plotting.movingaverage(stats['test'], 10))
+df = pandas.DataFrame((plotting.movingaverage(stats['loss'], 10), plotting.movingaverage(stats['test'], 10)), columns=T, index=['loss', 'test']).T
+plt.semilogy(T, df['loss'])
+plt.semilogy(T, df['test'])
 plt.plot([0, len(T)], numpy.array([1, 1])*mLoss.item(), 'black', linestyle='--')
 plt.xlim([0, len(T)])
 plt.ylim([1e-6, 1])
@@ -222,6 +229,8 @@ plt.text(T[-1], 1e-6, 'train {:.5f}\ntest {:.5f}'.format(stats['loss'][-1], stat
 plt.ylabel('Loss')
 plt.xlabel('Epoch')
 plt.legend(numpy.array(['Train', 'Test', 'Mean']), frameon=False)
+plt.savefig(folder + 'E.svg')
+df.to_csv(folder + 'E.tsv', sep='\t')
 
 plt.figure()
 plt.plot([0, maxIter], [0, 0], 'black')
@@ -229,6 +238,7 @@ plt.plot(T, stats['rate'])
 #plt.plot(T, stats['rate']*plotting.movingaverage(stats['loss'], 50)/numpy.nanmean(stats['loss']))
 plt.ylabel('Learning rate')
 plt.xlabel('Epoch')
+
 
 # plt.figure()
 # plt.plot([0, maxIter], [1, 1], 'black')
@@ -261,22 +271,15 @@ plt.xlabel('Epoch')
 plt.ylabel('Bias')
 
 
-plt.figure()
-plt.scatter(storeWeights[-1, :].numpy(), referenceWeights)
-plt.scatter(storeBias[-1, :].numpy(), referenceBias)
-plt.legend(numpy.array(['Weights', 'Bias']), frameon=False)
-plotting.lineOfIdentity()
-plt.xlabel('Fitted parameters')
-plt.ylabel('Reference parameters')
-plt.gca().axis('equal')
-
 
 plt.figure()
 Yhat, YhatFull = model(X)
 YhatTest = model(Xtest)[0].detach()
 Yhat = Yhat.detach()
-plt.scatter(Yhat.detach().numpy(), Y.detach().numpy())
-plt.scatter(YhatTest.detach().numpy(), Ytest.detach().numpy())
+dfTrain = pandas.DataFrame((Yhat.detach().numpy().flatten(), Y.detach().numpy().flatten()), index=['fit', 'reference']).T
+dfTest = pandas.DataFrame((YhatTest.detach().numpy().flatten(), Ytest.detach().numpy().flatten()), index=['fit', 'reference']).T
+plt.scatter(dfTrain['fit'], dfTrain['reference'])
+plt.scatter(dfTest['fit'], dfTest['reference'])
 plt.legend(numpy.array(['Train', 'Test']), frameon=False)
 plotting.lineOfIdentity()
 plt.xlabel('Fit')
@@ -286,6 +289,25 @@ plt.gca().set_xticks([0,0.5,1])
 plt.gca().set_yticks([0,0.5,1])
 r, p = pearsonr(YhatTest.detach().numpy().flatten(), Ytest.detach().numpy().flatten())
 plt.text(0.7, 0.1, 'r {:.2f}\np {:.2e}'.format(r, p))
+plt.savefig(folder + 'F.svg')
+dfTrain.to_csv(folder + 'F_train.tsv', sep='\t')
+dfTest.to_csv(folder + 'F_test.tsv', sep='\t')
+
+plt.figure()
+dfWeight = pandas.DataFrame((storeWeights[-1, :].numpy(), referenceWeights), index=['fit', 'reference']).T
+dfBias = pandas.DataFrame((storeBias[-1, :].numpy(), referenceBias.flatten()), index=['fit', 'reference']).T
+plt.scatter(dfWeight['fit'], dfWeight['reference'])
+plt.scatter(dfBias['fit'], dfBias['reference'])
+plt.legend(numpy.array(['Weights', 'Bias']), frameon=False)
+plotting.lineOfIdentity()
+plt.xlabel('Fitted parameters')
+plt.ylabel('Reference parameters')
+plt.gca().axis('equal')
+
+plt.savefig(folder + 'G.svg')
+dfWeight.to_csv(folder + 'G_weight.tsv', sep='\t')
+dfBias.to_csv(folder + 'G_bias.tsv', sep='\t')
+
 
 
 saveSimulations.save('simulations', 'toynetRecurrent', {'X':X, 'Y':Y, 'Model':model})

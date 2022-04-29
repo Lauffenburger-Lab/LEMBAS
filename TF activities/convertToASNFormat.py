@@ -45,7 +45,7 @@ allTFs = dorotheaData.columns.values
 
 outputs = numpy.zeros((len(allConditions), len(allTFs)))
 outputStd = numpy.zeros((len(allConditions), len(allTFs)))
-outputCount = numpy.zeros(len(allConditions))
+outputCount = numpy.zeros(len(allConditions), dtype=int)
 
 for i in range(len(allConditions)):
     selectedConditions = numpy.isin(allConditionList, allConditions[i])
@@ -59,7 +59,11 @@ signalConsistency = numpy.percentile(outputStd, 75, axis=0) < consistencyCutOf
 inconsistentTFs = allTFs[signalConsistency==False]
 print(inconsistentTFs)
 plt.rcParams["figure.figsize"] = (7,20)
-df = pd.DataFrame(outputStd, columns = allTFs, index=allConditions)
+conditionsPlusN = numpy.array(allConditions.copy(), dtype=object)
+for i in range(len(conditionsPlusN)):
+    conditionsPlusN[i] = '{:s} (N={:d})'.format(allConditions[i], outputCount[i])
+    
+df = pd.DataFrame(outputStd, columns = allTFs, index=conditionsPlusN)
 order = numpy.argsort(numpy.percentile(df.values, 75, axis=0))
 df = df.iloc[:,order]
 ax = sns.boxplot(data=df, orient='h', showfliers=False)

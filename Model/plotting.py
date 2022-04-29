@@ -83,6 +83,7 @@ def contourPlot(X, Y, Z):
 
     plt.xticks(rotation=0)
     plt.yticks(rotation=0)
+    return pivotted
 
 def shadePlot(X, Y, STD):
     plt.plot(X, Y)

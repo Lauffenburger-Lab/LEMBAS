@@ -4,7 +4,7 @@ import seaborn as sns
 from scipy import interpolate
 import matplotlib.pyplot as plt
 
-def displayResult(df, normalize):
+def displayResult(df, normalize, name):
 
     df.columns = df.columns.values.round(2)
     df.index = df.index.values.round(2)
@@ -42,6 +42,10 @@ def displayResult(df, normalize):
     #plt.gca().yaxis.grid(True, 'both', linewidth=1, color=[0,0,0])
     plt.ylim([0, 10])
     plt.xlim([0, 10])
+    
+    folder = 'figures/Figure 1/A/'
+    plt.savefig(folder + name  + '.svg')
+    df.to_csv(folder + name  + '.tsv', sep='\t')
 
 
 
@@ -73,9 +77,11 @@ ODEfiles = ['independentActivation.tsv',
 
 for file in ODEfiles:
     plt.figure()
+    name = file.split('.tsv')[0]
     df = pandas.read_csv(folder + '/' + file, sep='\t', low_memory=False, index_col=0)
     downSampled = interpolateData(10, df)
-    displayResult(downSampled, True)
+    displayResult(downSampled, True, name)
+    
 
 
 
