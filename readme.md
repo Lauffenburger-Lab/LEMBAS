@@ -22,7 +22,7 @@
 
 - Pubmed ID: -
 
-- Last update: 2022-03-14
+- Last update: 2022-04-29
 
 This repository is administered by @avlant.
 
@@ -41,6 +41,9 @@ This repository is administered by @avlant.
   * **seaborn_0.11.0**
 * **Matlab_R_2020_a** (only required for transcriptomics data assembly, network visualization and complexity tests)
 * **R_4.0.3** (only required for TF activity estimates)
+  * **dorothea_1.0.1**
+  * **DESeq2_1.28.1**
+  * **limma_3.44.3**
 
 This is the tested environment, but program may run with other specifications.
 
