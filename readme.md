@@ -125,7 +125,7 @@ Run the following files to reproduce the figures. Note that some processes are s
   - **a**, Model/testBPspeed.py
   - **b, c,** Model/synthNetTimeResults.py (generate conditions with Model/synthNetTimeConditions.py and deploy them with Model/synthNetTimeScreen.py).
 
-- **Figure S11** (2 h) 
+- **Figure S11** (1 h) 
 
   - **a**, Model/synthNetNoRegularization.py
   - **b, c, d**, **e,** Model/synthNetDataScreenResults.py
@@ -140,7 +140,7 @@ Run the following files to reproduce the figures. Note that some processes are s
 
 - **Figure S14** (<10 min)
 
-  - TF activities/convertToASNFormat.py
+  - Model/macrophageNetCrossValidationResults.py
 
 - **Figure S15**  (<10 min, ~2 h for CV and scrambled CV)
 
@@ -156,7 +156,7 @@ Run the following files to reproduce the figures. Note that some processes are s
 
 - **Figure S18** (<10 min, 15 min per CV fold)
 
-  - TF activities Ligand Screen/convertToASNFormat.py
+  - **a,b,c** Model/viabilityNetResults.py (For running the crossvalidation, viabilityNet.py)
 
   
 
