@@ -33,7 +33,7 @@ parameterizedModel = bionetwork.loadParam('data/toyNFKB-Parameters.txt', paramet
 allWeights = parameterizedModel.network.weights.data
 
 
-
+folder = 'figures/SI Figure 5/'
 
 
 #%%
@@ -83,7 +83,10 @@ plt.scatter(normalizedSamplePoints, normSample[:,1], color=[0,0,0])
 plt.xlabel('time')
 plt.ylabel('amplitude')
 plt.legend(['TNF', 'NFKBn',  'p100', 'sample'], frameon=False)
-plt.savefig('figures/NFKB/trajectory.svg')
+plt.savefig(folder + 'B.svg')
+df = pandas.DataFrame(normState, index=normalizedTime, columns=['TNF', 'NFKBn',  'p100'])
+df.to_csv(folder + 'B.tsv', sep='\t')
+
 
 conditionLabels = ['ctrl early', 'TNF early', 'TNF late', 'ctrl late']
 
@@ -178,15 +181,20 @@ plt.rcParams["figure.figsize"] = (3,3)
 plt.figure()
 
 T = numpy.array(range(stats['loss'].shape[0]))
-plt.semilogy(T, plotting.movingaverage(stats['loss'], 10))
+lossValue = plotting.movingaverage(stats['loss'], 10)
+plt.semilogy(T, lossValue)
 #plt.semilogy(T, plotting.movingaverage(stats['test'], 10))
 plt.plot([0, len(T)], numpy.array([1, 1])*mLoss.item(), 'black', linestyle='--')
 plt.xlim([0, len(T)])
 plt.ylim([1e-6, 1])
 #plt.text(T[-1], 1e-6, 'train {:.5f}\ntest {:.5f}'.format(stats['loss'][-1], stats['test'][-1]), ha='right', va='bottom')
-plt.ylabel('Loss')
 plt.xlabel('Epoch')
-plt.savefig('figures/NFKB/training.svg')
+plt.ylabel('Loss')
+plt.savefig(folder + 'C.svg')
+df = pandas.DataFrame((T, lossValue), index=['Epoch', 'Loss']).T
+df.to_csv(folder + 'C.tsv', sep='\t')
+
+
 
 #plt.legend(numpy.array(['Train', 'Test', 'Mean']), frameon=False)
 
@@ -199,7 +207,9 @@ plt.savefig('figures/NFKB/training.svg')
 
 
 plt.figure()
-plt.scatter(model.network.weights.detach().numpy(), parameterizedModel.network.weights.detach().detach().numpy())
+A = model.network.weights.detach().numpy()
+B = parameterizedModel.network.weights.detach().detach().numpy()
+plt.scatter(A, B)
 plotting.lineOfIdentity()
 plt.xlabel('Fit weights')
 plt.ylabel('Reference weights')
@@ -210,5 +220,9 @@ plt.gca().set_xticks([-1,0,1.5])
 plt.gca().set_yticks([-1,0,1.5])
 r, p = pearsonr(model.network.weights.detach().numpy().flatten(), parameterizedModel.network.weights.detach().numpy().flatten())
 plt.text(-0.9, 1, 'r {:.2f}\np {:.2e}'.format(r, p))
-plt.savefig('figures/NFKB/parameters.svg')
+plt.savefig(folder + 'D.svg')
+df = pandas.DataFrame((A, B), index=['Fit', 'Reference']).T
+df.to_csv(folder + 'D.tsv', sep='\t')
+
+
 #saveSimulations.save('simulations', 'toynetNFKB', {'X':X, 'Y':Y, 'Model':model})

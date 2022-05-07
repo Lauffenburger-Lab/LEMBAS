@@ -13,6 +13,7 @@ drugNames = drugData.columns.values.copy()
 drugConcentrations = numpy.unique(drugData.values)
 drugConcentrations = drugConcentrations[drugConcentrations!=0]  #only use conditions with drugs
 
+folder = 'figures/SI Figure 18/'
 
 #%%%
 plt.rcParams["figure.figsize"] = (3,3)
@@ -27,7 +28,11 @@ plotting.addCorrelation(torch.tensor(Yhat), torch.tensor(Y))
 plt.xlabel('Fit')
 plt.ylabel('Data')
 plt.gca().axis('equal')
-plt.savefig("figures/viability/train.svg")
+#plt.savefig("figures/viability/train.svg")
+df = pandas.DataFrame((Yhat, Y), index=['Train', 'Data']).T
+plt.savefig(folder + 'B.svg')
+df.to_csv(folder + 'B.tsv', sep='\t')
+
 
 #%%
 plt.figure()
@@ -131,7 +136,10 @@ ax.set(xlabel=None)
 plt.ylim([0, 1])
 plt.text(-0.5, results[0, 0]-0.4, '{:.2f}±{:.2f}'.format(results[0, 0], results[0, 1]))
 plt.text(0.5, results[1, 0]-0.4, '{:.2f}±{:.2f}'.format(results[1, 0], results[1, 1]))
-plt.savefig("figures/viability/test.svg")   
+#plt.savefig("figures/viability/test.svg")   
+df = pandas.DataFrame((Yhat, Y), index=['Train', 'Data']).T
+plt.savefig(folder + 'C.svg')
+dfAll.to_csv(folder + 'C.tsv', sep='\t')
 
       
 #%%         

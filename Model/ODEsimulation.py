@@ -227,6 +227,7 @@ numpy.save(folder + 'results.np', results)
 
 
 #%%
+resultFolder = 'figures/SI Figure 1/C/'
 plt.rcParams["figure.figsize"] = (6,6)
 
 # Yhat = model(X).detach()
@@ -235,7 +236,7 @@ plt.rcParams["figure.figsize"] = (6,6)
 # YtestHat = model(Xtest).detach()
 # #plotACondition(X, Y, Yhat, YtestHat, Ytest)
 
-reference =numpy.zeros((len(ODEfiles), 20*20))
+reference = numpy.zeros((len(ODEfiles), 20*20))
 results = numpy.zeros((len(ODEfiles), len(numberOfLayers), 20*20))
 
 start = time.time()
@@ -254,14 +255,21 @@ for i in range(len(ODEfiles)):
         results[i,j,:] = YtestHat.detach().numpy().flatten()
 print('Time:', time.time()-start)
 
-
 titles = ['IA', 'II', 'CA', 'CI']
-plt.rcParams["figure.figsize"] = (12,3)
+
+for i in range(len(ODEfiles)):
+    df = pandas.DataFrame((reference[i,:], results[i, 0,:], results[i, 1,:]), index=['Reference data', 'Fit 0 layers', 'Fit 1 layer']).T
+    df.to_csv(resultFolder + titles[i] + '.tsv', sep='\t', index=False)
+
+
+
+plt.rcParams["figure.figsize"] = (6,6)
 plt.figure()
 for i in range(len(ODEfiles)):
-    plt.subplot(1, 4, 1+i)
-    plt.scatter(results[i, 0,:], reference[i,:])
-    plt.scatter(results[i, 1,:], reference[i,:])
+    plt.subplot(2, 2, 1+i)
+    df = pandas.read_csv(resultFolder + titles[i] + '.tsv', sep='\t')
+    plt.scatter(df['Fit 0 layers'], df['Reference data'])
+    plt.scatter(df['Fit 1 layer'], df['Reference data'])
     r1, p = pearsonr(results[i, 0,:], reference[i,:])
     r2, p = pearsonr(results[i, 1,:], reference[i,:])
     plt.text(0.6, 0.1, '0: r={:.2f}\n1: r={:.2f}'.format(r1, r2))
@@ -273,9 +281,13 @@ for i in range(len(ODEfiles)):
     plotting.lineOfIdentity()
     plt.title(titles[i])
 
-    if i == 0:
+    if i == 0 or i==2:
         plt.ylabel('Reference data')
         plt.legend(['0 layers', '1 layer'], frameon=False)
+plt.tight_layout()
+plt.savefig(resultFolder + 'C.svg')
+
+
 
 #    plt.gca().set_xticks([0,0.5,1])
 #    plt.gca().set_yticks([0,0.5,1])

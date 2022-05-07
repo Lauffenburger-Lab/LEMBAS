@@ -90,6 +90,8 @@ N = 400
 X, Y, YfullRef = generateData(parameterizedModel, N)
 Xtest, Ytest, YfullRef = generateData(parameterizedModel, N)
 
+folder = 'figures/SI Figure 12/'
+
 #%%
 
 def executeErrorModel(model2, errorModel, dataIn, stateIn):
@@ -220,9 +222,10 @@ candidatesTarget = numpy.flip(numpy.argsort(meanAbsActivity))[0:topN]
 df = pandas.DataFrame(meanAbsActivity, index=nodeNameGeneArray, columns=['Mean activity'])
 
 df = df.iloc[candidatesTarget,:]
-sns.barplot(data=df.T)
+sns.barplot(data=df.T, color='#1f77b4')
 plt.ylabel('Mean abs activity')
-plt.savefig("figures/missingInteractions/posthocSource.svg")   
+plt.savefig(folder + "A.svg")   
+df.to_csv(folder + 'A.tsv', sep='\t')
 
 
 #%%
@@ -262,9 +265,13 @@ insensitiveCandididates = candidatesSources[numpy.isin(candidatesSources, sensit
 plt.figure()
 df = pandas.DataFrame(numpy.abs(correlatedNodes), index=nodeNameGeneArray, columns=['Correlation'])
 df = df.iloc[insensitiveCandididates,:]
-sns.barplot(data=df.T, orient='h')
+sns.barplot(data=df.T, orient='h', color='#1f77b4')
 plt.xlabel('abs correlation')
-plt.savefig("figures/missingInteractions/posthocTarget.svg")   
+#plt.savefig("figures/missingInteractions/posthocTarget.svg")   
+plt.savefig(folder + "B.svg")   
+df.to_csv(folder + 'B.tsv', sep='\t')
+
+
 
 # correlationStructure[numpy.isnan(correlationStructure)] = 0
 # numpy.fill_diagonal(correlationStructure, 0)
@@ -475,7 +482,8 @@ modelValues = YhatFull.detach().numpy()
 meanAbsActivity = numpy.mean(numpy.abs(dataErrorValues), axis=0)
 candidatesTarget = numpy.flip(numpy.argsort(meanAbsActivity))[0:10]
 df = pandas.DataFrame(meanAbsActivity[candidatesTarget], index=nodeNameGeneArray[candidatesTarget], columns=['Mean activity'])
-sns.barplot(data=df.T, orient='h')
+sns.barplot(data=df.T, orient='h', color='#1f77b4')
 plt.xlabel('Mean abs(activity)')
-plt.savefig("figures/missingInteractions/source.svg")   
+plt.savefig(folder + "C.svg")   
+df.to_csv(folder + 'C.tsv', sep='\t')
 

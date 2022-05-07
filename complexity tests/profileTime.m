@@ -56,13 +56,25 @@ set(gca, 'YScale', 'log')
 xlabel('matrix size [N]')
 ylabel('time [s]')
 
-figure()
-hold all
-errorbar(N, mean(stepConvergedIter'), std(stepConvergedIter'))
-errorbar(N, mean(stepConvergedNewton'), std(stepConvergedNewton'))
-legend({'Iteration', 'Newton'}, 'location', 'nw')
-xlabel('matrix size [N]')
-ylabel('#Steps untill converged')
-ylim([0, max(stepConvergedIter(:))])
+sampleNames = arrayfun(@num2str, 1:size(timeNewton,2), 'UniformOutput', false);        
+sampleNames = strcat('Rep_', sampleNames);
+
+conditionNames = arrayfun(@num2str, N, 'UniformOutput', false); 
+conditionNames = strcat('N_', conditionNames);
+
+T = array2table(timeIter, 'VariableNames', sampleNames, 'RowNames', conditionNames);
+writetable(T, '../Model/figures/SI Figure 3/A_iter.tsv', 'FileType', 'text', 'delim', '\t', 'WriteRowNames', true)
+
+T = array2table(timeNewton, 'VariableNames', sampleNames, 'RowNames', conditionNames);
+writetable(T, '../Model/figures/SI Figure 3/A_newton.tsv', 'FileType', 'text', 'delim', '\t', 'WriteRowNames', true)
+
+% figure()
+% hold all
+% errorbar(N, mean(stepConvergedIter'), std(stepConvergedIter'))
+% errorbar(N, mean(stepConvergedNewton'), std(stepConvergedNewton'))
+% legend({'Iteration', 'Newton'}, 'location', 'nw')
+% xlabel('matrix size [N]')
+% ylabel('#Steps untill converged')
+% ylim([0, max(stepConvergedIter(:))])
 
 

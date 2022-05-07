@@ -24,7 +24,7 @@ outName = numpy.intersect1d(nodeNames, outName)
 outNameGene = [uniprot2gene[x] for x in outName]
 nodeNameGene = [uniprot2gene[x] for x in nodeNames]
 
-model = bionetwork.model(networkList, nodeNames, modeOfAction, inputAmplitude, projectionAmplitude, inName, outName, bionetParams, torch.double)
+model = bionetwork.model(networkList, nodeNames, modeOfAction, inputAmplitude, projectionAmplitude, inName, outName, bionetParams)
 #model.network = bionetwork.orthogonalizeWeights(model.network)
 model.inputLayer.weights.requires_grad = False
 model.projectionLayer.weights.requires_grad = False
@@ -35,7 +35,7 @@ modelReg = copy.deepcopy(model)
 modelNoreg = copy.deepcopy(model)
 
 
-parameterizedModel = bionetwork.model(networkList, nodeNames, modeOfAction, inputAmplitude, projectionAmplitude, inName, outName, bionetParams, torch.double)
+parameterizedModel = bionetwork.model(networkList, nodeNames, modeOfAction, inputAmplitude, projectionAmplitude, inName, outName, bionetParams)
 parameterizedModel = bionetwork.loadParam('synthNetScreen/equationParams.txt', parameterizedModel, nodeNames)
 
 
@@ -51,13 +51,14 @@ controlIndex = 0
 Y, YfullRef = parameterizedModel(X)
 Y = Y.detach()
 
+folder = 'figures/SI Figure 11/'
 
 #%%
 #Setup optimizer
 batchSize = 5
 MoAFactor = 0.1
 spectralFactor = 1e-3
-maxIter = 10000
+maxIter = 8000
 noiseLevel = 10
 
 spectralTarget = numpy.exp(numpy.log(10**-2)/bionetParams['iterations'])
@@ -121,7 +122,7 @@ for e in range(e, maxIter):
             biasLoss = 1e-8 * torch.sum(torch.square(model.network.bias))
             weightLoss = 1e-8 * (torch.sum(torch.square(model.network.weights)) + torch.sum(1/(torch.square(model.network.weights) + 0.5)))
 
-            spectralRadiusLoss, spectralRadius = bionetwork.spectralLoss(model, YhatFull, model.network.weights, expFactor = 21)
+            spectralRadiusLoss, spectralRadius = bionetwork.spectralLoss(model.network, YhatFull, model.network.weights, expFactor = 21)
 
             if trainCondition == 'Noreg':
                 spectralRadiusLoss = torch.tensor(0.0)
@@ -156,6 +157,7 @@ statsReg = plotting.finishProgress(statsReg)
 statsNoreg = plotting.finishProgress(statsNoreg)
 
 #%%
+plt.rcParams["figure.figsize"] = (3,3)
 plt.figure()
 averaginingWindow = 50
 
@@ -169,6 +171,7 @@ plt.yscale('log')
 plt.ylabel('Loss')
 plt.xlabel('Epoch')
 plt.legend(numpy.array(['Regularized', 'Un-Regularized', 'Mean']), frameon=False)
+plt.savefig(folder + 'A_loss.svg')
 
 
 plt.figure()
@@ -176,7 +179,7 @@ plt.figure()
 #plt.plot([0, len(T)], spectralTarget * numpy.array([1, 1]), [0.850, 0.325, 0.098], linestyle='--')
 plotting.shadePlot(T, plotting.movingaverage(statsReg['eig'], averaginingWindow), plotting.movingaverage(statsReg['eigSTD'], averaginingWindow))
 plotting.shadePlot(T, plotting.movingaverage(statsNoreg['eig'], averaginingWindow), plotting.movingaverage(statsNoreg['eigSTD'], averaginingWindow))
-plt.plot([0, len(T)], model.network.parameters['spectralTarget'] * numpy.array([1, 1]), 'black', linestyle='--')
+plt.plot([0, len(T)], model.network.param['spectralTarget'] * numpy.array([1, 1]), 'black', linestyle='--')
 
 
 plt.legend(numpy.array(['Regularized', 'Un-Regularized', 'Capacity']), frameon=False)
@@ -184,6 +187,10 @@ plt.ylabel('Spectral radius')
 plt.xlabel('Epoch')
 plt.xlim([0, len(T)])
 plt.ylim(bottom=0, top=1.1)
+plt.savefig(folder + 'A_SR.svg')
+
+df = pandas.DataFrame((statsReg['loss'], statsNoreg['loss'], statsReg['eig'], statsNoreg['eig']), columns=T, index=['Regularized Loss', 'Un-Regularized Loss', 'Regularized SR', 'Un-Regularized SR']).T
+df.to_csv(folder + 'A.tsv', sep='\t')
 
 
 modelNoreg(X) #required to shift from the view input

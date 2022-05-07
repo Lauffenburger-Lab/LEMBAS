@@ -130,7 +130,7 @@ ODEfiles = ['independentActivation.tsv',
             'independentDeActivation.tsv',
             'cooperativeActivation.tsv',
             'competitiveInhibition.tsv']
-
+resultFolder = 'figures/SI Figure 1/'
 
 numberOfParameters = [3, 3, 2, 4]
 
@@ -145,7 +145,7 @@ normalizeData = False
 replicates = 3
 trainResolution = 7
 testResolution = 20
-resultFile = 'results/ODEdataVsFunction.tsv'
+
 
 #%%
 allData = pandas.DataFrame(columns=['Data', 'Function', 'Rep', 'Type', 'Value'])
@@ -183,10 +183,10 @@ for i in range(i, len(ODEfiles)):
 
 print('Time:', time.time()-start)
 
-allData.to_csv(resultFile, sep='\t', index=False)
+allData.to_csv(resultFolder + 'ODEdataVsFunction.tsv', sep='\t', index=False)
 
 #%%
-allData = pandas.read_csv(resultFile, sep='\t')
+allData = pandas.read_csv(resultFolder + 'ODEdataVsFunction.tsv', sep='\t')
 
 resultData = allData.loc[allData['Type']=='r', :].copy()
 results = numpy.zeros((len(ODEfiles), len(ODEfiles),  replicates))
@@ -208,7 +208,7 @@ df = pandas.DataFrame(meanResults, index=ODENames, columns = ODENames)
 
 plt.rcParams["figure.figsize"] = (4,3)
 plt.figure()
-sns.heatmap(df, annot=True, fmt="2.3f", cmap='gray', vmin=0, vmax=1, square=True)
-plt.savefig('figures/ODE/ODEvsODE.svg')
-
+h = sns.heatmap(df, annot=True, fmt="2.3f", cmap='gray', vmin=0, vmax=1, square=True)
+plt.savefig(resultFolder + 'B.svg')
+df.to_csv(resultFolder + 'B.tsv', sep='\t')
 

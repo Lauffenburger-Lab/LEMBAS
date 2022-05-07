@@ -62,13 +62,27 @@ set(gca, 'YScale', 'log')
 xlabel('matrix size [N]')
 ylabel('time [s]')
 
-figure()
-hold all
-errorbar(N, mean(stepConvergedIter'), std(stepConvergedIter'))
-plot(N, ones(size(N)));
-legend({'Iteration', 'LinSolve'}, 'location', 'nw')
-xlabel('matrix size [N]')
-ylabel('#Steps untill converged')
-ylim([0, max(stepConvergedIter(:))])
+
+sampleNames = arrayfun(@num2str, 1:size(timeIter,2), 'UniformOutput', false);        
+sampleNames = strcat('Rep_', sampleNames);
+
+conditionNames = arrayfun(@num2str, N, 'UniformOutput', false); 
+conditionNames = strcat('N_', conditionNames);
+
+T = array2table(timeIter, 'VariableNames', sampleNames, 'RowNames', conditionNames);
+writetable(T, '../Model/figures/SI Figure 3/B_iter.tsv', 'FileType', 'text', 'delim', '\t', 'WriteRowNames', true)
+
+T = array2table(timeLinsolve, 'VariableNames', sampleNames, 'RowNames', conditionNames);
+writetable(T, '../Model/figures/SI Figure 3/B_solve.tsv', 'FileType', 'text', 'delim', '\t', 'WriteRowNames', true)
+
+
+% figure()
+% hold all
+% errorbar(N, mean(stepConvergedIter'), std(stepConvergedIter'))
+% plot(N, ones(size(N)));
+% legend({'Iteration', 'LinSolve'}, 'location', 'nw')
+% xlabel('matrix size [N]')
+% ylabel('#Steps untill converged')
+% ylim([0, max(stepConvergedIter(:))])
 
 

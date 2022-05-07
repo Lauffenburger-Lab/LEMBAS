@@ -49,6 +49,10 @@ Y = torch.tensor(TFOutput.values, dtype=torch.double)
 bionetParams = bionetwork.trainingParameters(iterations = 150, clipping=1, leak=0.01)
 model = bionetwork.model(networkList, nodeNames, modeOfAction, 3, 1.2, inName, outName, bionetParams)
 
+
+folder1 = 'figures/SI Figure 14/'
+folder2 = 'figures/SI Figure 15/'
+
 #%%
 testedConditions = CVconditions['Condition'].values
 dictionary = dict(zip(sampleName, list(range(len(sampleName)))))
@@ -161,8 +165,11 @@ fullModelY, YhatFull = curModel(X)
 #%%
 plt.rcParams["figure.figsize"] = (15,15)
 plt.figure()
-plotting.displayData(Y, sampleName, outNameGene)
-plt.savefig("figures/literature CV/heatmap.svg")   
+df = plotting.displayData(Y, sampleName, outNameGene)
+#plt.savefig("figures/literature CV/heatmap.svg")   
+plt.savefig(folder1 + 'heatmap.svg')
+df.to_csv(folder1 + 'heatmap.tsv', sep='\t')
+
 
 plt.rcParams["figure.figsize"] = (3,3)
 plt.figure()
@@ -187,7 +194,12 @@ plt.gca().set_xticks([0, 0.5, 1])
 plt.gca().set_yticks([0, 0.5, 1])
 plotting.lineOfIdentity()
 plt.text(0, 0.9, 'r {:.2f}'.format(r))
-plt.savefig("figures/literature CV/train.svg")   
+#plt.savefig("figures/literature CV/train.svg")   
+plt.savefig(folder2 + 'A.svg')
+df = pandas.DataFrame((A.flatten(), B.flatten()), index=['Train', 'Data']).T
+df.to_csv(folder2 + 'A.tsv', sep='\t')
+
+
 
 plt.figure()
 A = predictionY.detach().numpy()
@@ -207,7 +219,11 @@ plt.gca().set_xticks([0, 0.5, 1])
 plt.gca().set_yticks([0, 0.5, 1])
 plotting.lineOfIdentity()
 plt.text(0, 0.9, 'r {:.2f}\np {:.2e}'.format(r, p))
-plt.savefig("figures/literature CV/test.svg")   
+#plt.savefig("figures/literature CV/test.svg")   
+plt.savefig(folder2 + 'B.svg')
+df = pandas.DataFrame((A.flatten(), B.flatten()), index=['LOOCV', 'Data']).T
+df.to_csv(folder2 + 'B.tsv', sep='\t')
+
 
 plt.figure()
 A = scrambledY.detach().numpy()
@@ -288,7 +304,7 @@ plt.ylabel('Correlation')
 plt.gca().set_xticklabels(plt.gca().get_xticklabels(), rotation=90)
 #plt.gca().yaxis.tick_right()
 #plt.gca().yaxis.set_label_position("right")
-
+df.to_csv(folder2 + 'C_boxplot.tsv', sep='\t')
 
 Xinterval = numpy.array([0, len(samplePrediction)])-0.5
 Xlocation = numpy.array(range(len(samplePrediction)))
@@ -310,7 +326,13 @@ plt.plot(Xinterval, [predictingAverage, predictingAverage], 'k--')
 U1, p = mannwhitneyu(samplePrediction, samplePredictionScrabled)
 plt.text(0, r, 'p {:.2e}'.format(p))
 plt.xlim(Xinterval)
-plt.savefig("figures/literature CV/CVconditions.svg")   
+#plt.savefig("figures/literature CV/CVconditions.svg")   
+plt.savefig(folder2 + 'C.svg')
+df2 = pandas.DataFrame((samplePrediction[defineOrder], samplePredictionScrabled[defineOrder]), index=['LOOCV', 'Scrambled'], columns=testedConditions[defineOrder]).T
+df2.to_csv(folder2 + 'C_prediction.tsv', sep='\t')
+
+#df = pandas.DataFrame((A.flatten(), B.flatten()), index=['Train', 'Data']).T
+#df.to_csv(folder2 + 'A.tsv', sep='\t')
 
 #plt.legend(['CV', 'Scrambled Y'])
 

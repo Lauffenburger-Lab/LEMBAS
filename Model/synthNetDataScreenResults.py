@@ -30,6 +30,9 @@ simultaniousInput = 5
 inputAmplitude = 3
 projectionAmplitude = 1.2
 
+folder1 = 'figures/Figure 5/'
+folder2 = 'figures/SI Figure 11/'
+
 #Load network
 networkList, nodeNames, modeOfAction = bionetwork.loadNetwork('data/KEGGnet-Model.tsv')
 annotation = pandas.read_csv('data/KEGGnet-Annotation.tsv', sep='\t')
@@ -101,7 +104,7 @@ predictingAverageTF = r
 
 
 #%%
-folder = 'figures/Figure 5/'
+
 
 plt.rcParams["figure.figsize"] = (3,3)
 allLiganValues = numpy.unique(dataConditions['Ligands'].values)
@@ -138,8 +141,8 @@ plt.gca().set_xticklabels(allDataValues)
 plt.xlabel('Train data size')
 plt.ylabel('Test correlation')
 
-plt.savefig(folder + 'A.svg')
-df.to_csv(folder + 'A.tsv', sep='\t')
+plt.savefig(folder1 + 'A.svg')
+df.to_csv(folder1 + 'A.tsv', sep='\t')
 
 df = pandas.DataFrame(result, index=allDataValues, columns=allLiganValues)
 plt.plot(df)
@@ -169,6 +172,13 @@ plt.xlabel('fit')
 plt.ylabel('reference')
 plt.legend(['Weight r {:.2f}'.format(r1), 'Bias r {:.2f}'.format(r2)], frameon=False)
 plt.gca().axis('equal')
+
+plt.savefig(folder2 + 'D.svg')
+df = pandas.DataFrame((finalWeights, trueWeights), index = ['Fit', 'Reference']).T
+df.to_csv(folder2 + 'D_weights.tsv', sep='\t')
+
+df = pandas.DataFrame((finalBias, trueBias), index = ['Fit', 'Reference']).T
+df.to_csv(folder2 + 'D_bias.tsv', sep='\t')
 
 
 #%%
@@ -221,9 +231,9 @@ r, p = pearsonr(df['Model'].values, df['Reference'].values)
 plt.text(0, axisScale *0.9, 'r {:.2f}'.format(r))
 
 
-plt.savefig(folder + 'B.svg')
+plt.savefig(folder1 + 'B.svg')
 df = pandas.DataFrame(counts_transformed, index=rangeX[:-1], columns=rangeY[:-1])
-df.to_csv(folder + 'B.tsv', sep='\t')
+df.to_csv(folder1 + 'B.tsv', sep='\t')
 
 #%%
 
@@ -236,6 +246,9 @@ plt.xlim([0, 1])
 plt.ylabel('number of TFs')
 plt.xlabel('correlation')
 print('Lowest TF correlation', min(TFCorrelation))
+plt.savefig(folder2 + 'C_TF.svg')
+df = pandas.DataFrame(TFCorrelation, index=outNameGene)
+df.to_csv(folder2 + 'C_TF.tsv', sep='\t')
 
 plt.figure()
 conditionCorrelations = plotting.calculateCorrelations(Ytest.T, YhatTest.T)
@@ -244,6 +257,9 @@ plt.xlim([0, 1])
 plt.ylabel('number of conditions')
 plt.xlabel('correlation')
 print('Lowest Condition correlation', min(conditionCorrelations))
+plt.savefig(folder2 + 'C_condition.svg')
+df = pandas.DataFrame(conditionCorrelations)
+df.to_csv(folder2 + 'C_condition.tsv', sep='\t')
 
 plt.figure()
 stateRef = YfullRef[:,internalNodes].detach()
@@ -252,6 +268,10 @@ stateCorrelations = plotting.calculateCorrelations(stateRef, state)
 plt.hist(stateCorrelations, 20)
 plt.xlabel('correlation')
 plt.ylabel('number of state variables')
+plt.savefig(folder2 + 'E.svg')
+df = pandas.DataFrame(stateCorrelations)
+df.to_csv(folder2 + 'E.tsv', sep='\t')
+
 
 #%%
 # plt.figure()
@@ -320,13 +340,13 @@ for i in range(replicates):
     results[i,0] = r
 
     #Only regularization
-    curModel = torch.load('synthNetScreen/onlyRegularization.pt')
+    curModel = loadModel(model, 'synthNetScreen/onlyRegularization.pt')
     Yhat, YhatFull = curModel(Xtest)
     r, p = pearsonr(Yhat.detach().flatten(), Ytest.flatten())
     results[i,1] = r
 
     #Only regularization
-    curModel = torch.load('synthNetScreen/scrambledY.pt')
+    curModel = loadModel(model, 'synthNetScreen/scrambledY.pt')
     Yhat, YhatFull = curModel(Xtest)
     r, p = pearsonr(Yhat.detach().flatten(), Ytest.flatten())
     results[i,2] = r
@@ -339,3 +359,5 @@ sns.boxplot(data=df)  #orient="h",
 plt.ylabel('Correlation')
 plt.ylim([0, 0.5])
 plt.gca().set_xticklabels(plt.gca().get_xticklabels(), rotation=20)
+plt.savefig(folder2 + 'B.svg')
+df.to_csv(folder2 + 'B.tsv', sep='\t')

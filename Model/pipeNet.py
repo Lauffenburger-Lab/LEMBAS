@@ -6,7 +6,7 @@ import bionetwork
 import plotting
 import copy
 import saveSimulations
-
+import pandas
 batchSize = 10
 
 #Load network
@@ -14,18 +14,7 @@ networkList, nodeNames, modeOfAction = bionetwork.loadNetwork("data/pipeNet.txt"
 bionetParams = bionetwork.trainingParameters(iterations = 6, clipping=1, leak=0.01)
 
 
-class net(torch.nn.Module):
-    def __init__(self, networkList, nodeNames, inName, outName, bionetParams, valType):
-        super(net, self).__init__()
-        self.inputLayer = bionetwork.projectInput(nodeNames, inName, valType)
-        self.network = bionetwork.bionet(networkList, len(nodeNames), modeOfAction, bionetParams, valType)
-        self.projectionLayer = bionetwork.projectOutput(nodeNames, outName, 2, valType)
 
-    def forward(self, X):
-        fullX = self.inputLayer(X)
-        fullY = self.network(fullX)
-        Yhat = self.projectionLayer(fullY)
-        return Yhat, fullY
 
 
 inputAmplitude = 3
@@ -34,8 +23,7 @@ projectionAmplitude = 2.5
 inName = numpy.array(['A'])
 outName = numpy.array(['E'])
 
-
-model = bionetwork.model(networkList, nodeNames, modeOfAction, inputAmplitude, projectionAmplitude, inName, outName, bionetParams, torch.double)
+model = bionetwork.model(networkList, nodeNames, modeOfAction, inputAmplitude, projectionAmplitude, inName, outName, bionetParams)
 model.projectionLayer.weights.requires_grad = False
 
 parameterizedModel = copy.deepcopy(model)
@@ -204,10 +192,13 @@ for e in range(maxIter):
 print('Time:', time.time()-start)
 
 #%%
+folder = 'figures/SI Figure 4/pipeNet/'
+
 XA = torch.tensor(numpy.linspace(0, 2, num=50)).reshape([-1, 1])
 YA = parameterizedModel(XA)[0].detach()
 Ytrain = model(X)[0].detach()
 Ytest = model(Xtest)[0].detach()
+
 
 #Plot stats
 plt.rcParams["figure.figsize"] = (3,3)
@@ -218,6 +209,10 @@ plt.scatter(Xtest, Ytest)
 plt.xlabel('X')
 plt.ylabel('Y')
 plt.legend(['Reference', 'Train', 'Test'], frameon=False)
+plt.savefig(folder + 'input_output.svg')
+df = pandas.DataFrame((XA.numpy().flatten(), YA.numpy().flatten()), index=['X', 'Y']).T
+df.to_csv(folder + 'input_output.tsv', sep='\t')
+
 
 plt.figure()
 T = numpy.array(range(stats['loss'].shape[0]))
@@ -255,18 +250,24 @@ finalBias = model.network.bias.data.flatten()
 finalWeightsSTD = 0
 finalBiasSTD = 0
 
+
+
+plt.figure()
+dfWeight = pandas.DataFrame((finalWeights.detach().numpy().flatten(), trueWeights.detach().numpy().flatten()), index=['fit', 'reference']).T
+dfBias = pandas.DataFrame((finalBias.detach().numpy().flatten(), trueBias.detach().numpy().flatten()), index=['fit', 'reference']).T
+plt.scatter(dfWeight['fit'], dfWeight['reference'])
+plt.scatter(dfBias['fit'], dfBias['reference'])
+plt.legend(numpy.array(['Weights', 'Bias']), frameon=False)
+plt.xlabel('Fitted parameters')
+plt.ylabel('Reference parameters')
+plt.gca().axis('equal')
 plt.axhline(0, color='black', label='_nolegend_')
 plt.axvline(0, color='black', label='_nolegend_')
-plt.scatter(finalWeights, trueWeights)
-plt.scatter(finalBias, trueBias)
-plt.errorbar(finalWeights, trueWeights, xerr=finalWeightsSTD, linestyle='None', marker='None', color='black')
-plt.errorbar(finalBias, trueBias, xerr=finalBiasSTD, linestyle='None', marker='None', color='black')
-
 plt.plot([-2, 2], [-2, 2], 'black', label='_nolegend_')
-plt.xlabel('Fit')
-plt.ylabel('Reference')
-plt.legend(numpy.array(['Weight', 'Bias']), frameon=False)
-plt.gca().axis('equal')
+
+plt.savefig(folder + 'weights_bias.svg')
+dfWeight.to_csv(folder + 'weight.tsv', sep='\t')
+dfBias.to_csv(folder + 'bias.tsv', sep='\t')
 
 
 plt.figure()
@@ -291,5 +292,14 @@ for i in range(state.shape[1]):
 plt.xlabel('State Fit')
 plt.ylabel('State Reference')
 plt.legend(nodeNames, frameon=False)
+plt.savefig(folder + 'state.svg')
+
+df = pandas.DataFrame(stateRef.detach().numpy(), columns=nodeNames)
+df.to_csv(folder +  'State_Reference.tsv', sep='\t')
+
+df = pandas.DataFrame(state.detach().numpy(), columns=nodeNames)
+df.to_csv(folder +  'State_Fit.tsv', sep='\t')
+
+
 
 saveSimulations.save('simulations', 'pipeNet', {'X':X, 'Y':Y, 'Xtest':Xtest, 'Ytest':Ytest, 'Model':model})

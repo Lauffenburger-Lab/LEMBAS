@@ -8,6 +8,7 @@ import seaborn as sns
 import time
 import copy
 from scipy.stats import pearsonr
+import pandas
 
 def getSample(filePath, sampleName):
     file = open(filePath + 'name.txt', mode='r')
@@ -26,6 +27,8 @@ inputAmplitude = 1
 projectionAmplitude = 1.3
 simultaniousInput = 2
 
+
+folder = 'figures/SI Figure 8/'
 
 annotation = pd.read_csv('data/ToyNetRecurrent-Annotation.txt', sep='\t')
 uniprot2gene = dict(zip(annotation['code'], annotation['name']))
@@ -206,7 +209,7 @@ Y, YFull = model(X)
 
 
 plt.figure()
-plotting.contourPlot(X[:, 0].detach(), X[:, 1].detach(), Y.detach())
+h = plotting.contourPlot(X[:, 0].detach(), X[:, 1].detach(), Y.detach())
 plt.xticks([0,5,10], labels=['0', '0.5', '1'])
 plt.yticks([0,5,10], labels=['0', '0.5', '1'])
 plt.gca().set_xticks(list(range(0,11)), minor=True)
@@ -216,27 +219,38 @@ plt.ylabel(inName[1])
 plt.gcf().axes[1].set_label(outName[0])
 plt.gca().xaxis.grid(True, 'both', linewidth=1, color=[0,0,0])
 plt.gca().yaxis.grid(True, 'both', linewidth=1, color=[0,0,0])
-plt.savefig("figures/generativeToynet/automatic.svg")
+plt.savefig(folder + 'B.svg')
+h.to_csv(folder + 'B.tsv', sep='\t')
 
 plt.figure()
 plt.hist(Y.detach().numpy().flatten())
 
+
+plt.rcParams["figure.figsize"] = (3,3)
 plt.figure()
-referenceWeights = parameterizedModel.network.weights.detach()
-fittedWeights = model.network.weights.detach()
-referenceBias = parameterizedModel.network.bias.detach()
-fittedBias = model.network.bias.detach()
+referenceWeights = parameterizedModel.network.weights.detach().numpy().flatten()
+fittedWeights = model.network.weights.detach().numpy().flatten()
+referenceBias = parameterizedModel.network.bias.detach().numpy().flatten()
+fittedBias = model.network.bias.detach().numpy().flatten()
 
-plt.scatter(fittedWeights.numpy().flatten(), referenceWeights.numpy().flatten(), alpha=0.8)
-plt.scatter(fittedBias.numpy().flatten(), referenceBias.numpy().flatten(), alpha=0.8)
-
+dfWeight = pandas.DataFrame((fittedWeights, referenceWeights), index=['fit', 'reference']).T
+dfBias = pandas.DataFrame((fittedBias, referenceBias), index=['fit', 'reference']).T
+plt.scatter(dfWeight['fit'], dfWeight['reference'], alpha=0.8)
+plt.scatter(dfBias['fit'], dfBias['reference'], alpha=0.8)
+plt.legend(numpy.array(['Weights', 'Bias']), frameon=False)
 plotting.lineOfIdentity()
-r, p = pearsonr(referenceWeights.detach().flatten(), fittedWeights.detach().flatten())
-plt.text(-1, 1.5, 'r {:.2f}\np {:.2e}'.format(r, p))
 plt.xlabel('Automatic')
 plt.ylabel('Manual')
 plt.gca().axis('equal')
-plt.savefig("figures/generativeToynet/automaticVsManualParameters.svg")
+
+r, p = pearsonr(referenceWeights, fittedWeights)
+plt.text(1, -1, 'r {:.2f}\np {:.2e}'.format(r, p))
+
+plt.savefig(folder + 'D.svg')
+dfWeight.to_csv(folder + 'D_weight.tsv', sep='\t')
+dfBias.to_csv(folder + 'D_bias.tsv', sep='\t')
+
+
 
 plt.figure()
 referenceY, YFull = parameterizedModel(X)
@@ -247,8 +261,11 @@ plt.text(0, 0.9, 'r {:.2f}\np {:.2e}'.format(r, p))
 plt.xlabel('Automatic')
 plt.ylabel('Manual')
 plt.gca().axis('equal')
-plt.savefig("figures/generativeToynet/automaticVsManual.svg")
+plt.savefig(folder + 'C.svg')
+df = pandas.DataFrame((Y.detach().numpy().flatten(), referenceY.detach().numpy().flatten()), index=['Automatic', 'Manual']).T
+df.to_csv(folder + 'C.tsv', sep='\t')
 
+plt.figure()
 #Test alternative parametrization
 modifiedState = copy.deepcopy(referenceState)
 mu = numpy.mean(modifiedState['weights'].detach().numpy())
@@ -262,8 +279,7 @@ perturbedModel = copy.deepcopy(model)
 perturbedModel.network.load_state_dict(modifiedState)
 Y, YFull = perturbedModel(X)
 
-plt.figure()
-plotting.contourPlot(X[:, 0].detach(), X[:, 1].detach(), Y.detach())
+h = plotting.contourPlot(X[:, 0].detach(), X[:, 1].detach(), Y.detach())
 plt.xticks([0,5,10], labels=['0', '0.5', '1'])
 plt.yticks([0,5,10], labels=['0', '0.5', '1'])
 plt.gca().set_xticks(list(range(0,11)), minor=True)
@@ -273,5 +289,6 @@ plt.ylabel(inName[1])
 plt.gcf().axes[1].set_label(outName[0])
 plt.gca().xaxis.grid(True, 'both', linewidth=1, color=[0,0,0])
 plt.gca().yaxis.grid(True, 'both', linewidth=1, color=[0,0,0])
-plt.savefig("figures/generativeToynet/permutated.svg")
+plt.savefig(folder + 'A.svg')
+h.to_csv(folder + 'A.tsv', sep='\t')
 #bionetwork.saveParam(model, nodeNames, 'synthNetModel/equationParams.txt')

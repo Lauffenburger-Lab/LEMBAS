@@ -19,6 +19,8 @@ def logIt(data):
 
 #x = numpy.linspace(0,1,1000)
 
+folder = '../model/figures/SI Figure 13/'
+
 
 #%%
 controlName = 'CON'
@@ -66,22 +68,24 @@ for i in range(len(conditionsPlusN)):
 df = pd.DataFrame(outputStd, columns = allTFs, index=conditionsPlusN)
 order = numpy.argsort(numpy.percentile(df.values, 75, axis=0))
 df = df.iloc[:,order]
-ax = sns.boxplot(data=df, orient='h', showfliers=False)
+ax = sns.boxplot(data=df, orient='h', showfliers=False, color='#71bae2')
 ax = sns.stripplot(data=df, orient='h', color = 'black')
 leftRight = plt.ylim()
 plt.plot([consistencyCutOf, consistencyCutOf], [leftRight[0], leftRight[1]], color='black')
 ax.set_title('TF consistency')
 plt.xlabel('STD')
-plt.savefig("figures/TFSTD.svg")   
+plt.savefig(folder + 'B.svg')
+df.to_csv(folder + 'data.tsv', sep='\t')
 
 plt.figure()
 order = numpy.argsort(numpy.percentile(df.values, 75, axis=1))
 df = df.iloc[order,:]
-ax = sns.boxplot(data=df.T, orient='h', showfliers=False)
+ax = sns.boxplot(data=df.T, orient='h', showfliers=False, color='#71bae2')
 ax = sns.stripplot(data=df.T, orient='h', color = 'black')
 ax.set_title('Condition consistency')
 plt.xlabel('STD')
-plt.savefig("figures/ConditionSTD.svg")   
+plt.savefig(folder + 'A.svg')
+
 
 # plt.rcParams["figure.figsize"] = (5,1)
 # plt.figure()
@@ -104,7 +108,8 @@ df = df.loc[:,qualityCriteria].copy()
 #h = sns.clustermap(df, cmap='RdBu_r', vmin=0, vmax=1)
 #sns.set(font_scale=0.7)
 h = sns.clustermap(df, cmap='RdBu_r', vmin=0, vmax=1, yticklabels=True, xticklabels=True)
-
+#plt.savefig(folder2 + 'heatmap.svg')
+#df.to_csv(folder2 + 'heatmap.tsv', sep='\t')
 
 plt.rcParams["figure.figsize"] = (7,7)
 plt.figure()

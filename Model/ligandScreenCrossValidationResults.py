@@ -34,7 +34,9 @@ sampleName = ligandInput.index.values
 X = torch.tensor(ligandInput.values.copy(), dtype=torch.double)
 Y = torch.tensor(TFOutput.values, dtype=torch.double)
 
-folder = 'figures/Figure 6/'
+folder1 = 'figures/Figure 6/'
+folder2 = 'figures/SI Figure 17/'
+
 #%%
 testedConditions = CVconditions['Condition'].values
 dictionary = dict(zip(sampleName, list(range(len(sampleName)))))
@@ -163,8 +165,8 @@ plt.gca().set_xticks([0, 0.5, 1])
 plt.gca().set_yticks([0, 0.5, 1])
 plotting.lineOfIdentity()
 plt.text(0, 0.9, 'r {:.2f}\np {:.2e}'.format(r, p))
-plt.savefig(folder + 'C.svg')
-df.to_csv(folder + 'C.tsv', sep='\t')
+plt.savefig(folder1 + 'C.svg')
+df.to_csv(folder1 + 'C.tsv', sep='\t')
 
 # axisScale = 40
 # counts, rangeX, rangeY = numpy.histogram2d(A.flatten(), B.flatten(), bins=axisScale, range=[[0, 1], [0, 1]])
@@ -224,8 +226,8 @@ reg = LinearRegression().fit(predictionCorrelations.reshape(-1, 1), trainCorrela
 Y = numpy.array([0, 1])
 X = reg.predict(Y.reshape(-1, 1))
 plt.plot(X, Y, color = 'tab:orange')
-plt.savefig(folder + 'D.svg')
-df.to_csv(folder + 'D.tsv', sep='\t')
+plt.savefig(folder1 + 'D.svg')
+df.to_csv(folder1 + 'D.tsv', sep='\t')
 
 # plt.figure()
 # plt.scatter(scrambledCorrelation, predictionCorrelations)
@@ -244,6 +246,7 @@ plt.figure()
 sampleOrder = numpy.flip(numpy.argsort(predictionCorrelations))
 df = pandas.DataFrame(tfCorrelations, columns=outNameGene.copy(), index=foldNames)
 df = df.iloc[:,sampleOrder]
+df.to_csv(folder2 + 'C_boxplot.tsv', sep='\t', na_rep='NaN')
 df = pandas.melt(df)
 df = df.dropna()
 sns.boxplot(x='value', y='variable', data=df, color='grey')
@@ -256,6 +259,10 @@ sns.boxplot(x='value', y='variable', data=df, color='grey')
 
 Ylocation = numpy.array(range(len(predictionCorrelations)))
 plt.scatter(predictionCorrelations[sampleOrder], Ylocation)
+df = pandas.DataFrame(predictionCorrelations, index=outNameGene.copy()).T
+df = df.iloc[:,sampleOrder]
+df.to_csv(folder2 + 'C_prediction.tsv', sep='\t')
+
 #plt.scatter(predictionCorrelationsScrambled[sampleOrder], Ylocation, alpha=0.2)
 # plt.scatter(scrambledConditions, Ylocation)
 # plt.plot([0, 0], [0, len(samplePrediction)], 'k')
@@ -265,7 +272,9 @@ plt.ylabel('TF')
 plt.xlabel('Correlation')
 plt.xlim(right=1)
 plt.xlim([0, 1])
-plt.savefig("figures/ligand screen CV/correlationsTF.svg")   
+#plt.savefig("figures/ligand screen CV/correlationsTF.svg")   
+plt.savefig(folder2 + 'C.svg')
+
 
 
 plt.rcParams["figure.figsize"] = (4, 18)
@@ -273,13 +282,19 @@ plt.figure()
 sampleOrder = numpy.flip(numpy.argsort(samplePrediction))
 df = pandas.DataFrame(sampleCorrelations, columns=testedConditions.copy(), index=foldNames)
 df = df.iloc[:,sampleOrder]
+df.to_csv(folder2 + 'B_boxplot.tsv', sep='\t', na_rep='NaN')
 df = pandas.melt(df)
 df = df.dropna()
 sns.boxplot(x='value', y='variable', data=df, color='grey')
 Ylocation = numpy.array(range(len(samplePrediction)))
 plt.scatter(samplePrediction[sampleOrder], Ylocation)
 plt.xlim([-1, 1])
-plt.savefig("figures/ligand screen CV/correlationsConditions.svg")   
+#plt.savefig("figures/ligand screen CV/correlationsConditions.svg")   
+plt.savefig(folder2 + 'B.svg')
+df = pandas.DataFrame(samplePrediction, index=testedConditions.copy()).T
+df = df.iloc[:,sampleOrder]
+df.to_csv(folder2 + 'B_prediction.tsv', sep='\t')
+
 #plt.scatter(samplePredictionScrambled[sampleOrder], Ylocation, alpha=0.2)
 
 
@@ -329,6 +344,8 @@ plt.ylabel('correlation')
 plt.plot([-0.5, 3.5], [0, 0], color='k')
 plt.ylim([-1, 1])
 
+
+
 #r = numpy.mean(samplePrediction)
 #plt.plot([r, r], Ylocation, color=colors[0], alpha=0.5)
 #r = numpy.mean(samplePredictionScrabled)
@@ -344,7 +361,9 @@ meanR = numpy.mean(results, axis=0)
 stdR = numpy.std(results, axis=0)
 for i in range(len(meanR)):
     plt.text(i-0.3, -0.85, '{:.2f}±{:.2f}'.format(meanR[i], stdR[i]))
-plt.savefig("figures/ligand screen CV/compareCV.svg")   
+#plt.savefig("figures/ligand screen CV/compareCV.svg")
+plt.savefig(folder2 + 'A.svg')
+df.to_csv(folder2 + 'A.tsv', sep='\t')
 
 # plt.rcParams["figure.figsize"] = (5, 5)
 # plt.figure()

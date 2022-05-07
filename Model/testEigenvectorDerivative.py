@@ -6,11 +6,14 @@ import torch
 from scipy.linalg import eig
 from scipy.sparse.linalg import eigs
 import plotting
+import pandas
 
 networkSize = 100
 deltaSize = numpy.double(1e-10)
 initialEig = 0.95
 density = 0.1
+
+folder = 'figures/SI Figure 6/'
 
 #Generate random test data
 network = scipy.sparse.random(networkSize, networkSize, density)
@@ -102,11 +105,24 @@ tmp = plt.Circle((0, 0), 1, color='k', fill=False)
 plt.gca().add_patch(tmp)
 plt.xlabel('Real')
 plt.ylabel('Imag')
+
+plt.savefig(folder + 'A.svg')
+df = pandas.DataFrame((e.real, e.imag), index=['Real', 'Imag']).T
+df.to_csv(folder + 'A.tsv', sep='\t')
+
+df = pandas.DataFrame((eValue.real, eValue.imag), index=['Real', 'Imag']).T
+df.to_csv(folder + 'A_highlight.tsv', sep='\t')
+
+
 #%%
+plt.rcParams["figure.figsize"] = (4,4)
 plt.figure()
 plt.scatter(calculatedDelta, empiricalDerivative)
 plotting.lineOfIdentity()
 plt.xlabel('Calculated from eigen vector')
 plt.ylabel('Numerical')
 
+plt.savefig(folder + 'B.svg')
+df = pandas.DataFrame((calculatedDelta.detach().numpy().flatten(), empiricalDerivative), index=['Calculated from eigenvector', 'Numerical']).T
+df.to_csv(folder + 'B.tsv', sep='\t')
 

@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy
 import plotting
 import time
+import pandas
 
 networkSize = 50
 batchsize = 5
@@ -18,8 +19,8 @@ input = torch.randn(batchsize, len(nodeNames), dtype=torch.double, requires_grad
 parameters = bionetwork.trainingParameters(iterations=150, clipping=1)
 net1 = bionetwork.bionetworkAutoGrad(networkList, len(nodeNames))
 net2 = bionetwork.bionet(networkList, len(nodeNames), MOA, parameters, activationFunction, torch.double)
-net2.weights.data = net1.A.values.data
-net2.bias.data = net1.bias.data
+net2.weights.data = net1.A.values.data.clone()
+net2.bias.data = net1.bias.data.clone()
 
 #test = torch.autograd.gradcheck(net1, input, eps=1e-4, atol=1e-6)
 #test = torch.autograd.gradcheck(net2, input, eps=1e-6, atol=1e-6)
@@ -57,45 +58,48 @@ loss2 = criterion(prediction2, predictionForLoss)
 loss2.backward()
 print(time.time() - start)
 
+
 #net1.A.to_dense().detach().numpy()
 #net2.A.toarray()
 
 
 #%%
+folder = 'figures/SI Figure 2/'
+
+titles = ['Prediction', 'Input gradient', 'Weight gradient', 'Bias gradient']
+
+
+df = pandas.DataFrame((prediction2.data.detach().numpy().flatten(), prediction1.data.detach().numpy().flatten()), index=['steady state', 'autograd']).T
+df.to_csv(folder + titles[0] + '.tsv', sep='\t', index=False)
+
+df = pandas.DataFrame((input2.grad.detach().numpy().flatten(), input1.grad.detach().numpy().flatten()), index=['steady state', 'autograd']).T
+df.to_csv(folder + titles[1] + '.tsv', sep='\t', index=False)
+
+df = pandas.DataFrame((net2.weights.grad.numpy().flatten(), gradWeights.values().numpy().flatten()), index=['steady state', 'autograd']).T
+df.to_csv(folder + titles[2] + '.tsv', sep='\t', index=False)
+
+df = pandas.DataFrame((net2.bias.grad.numpy().flatten(), net1.bias.grad.numpy().flatten()), index=['steady state', 'autograd']).T
+df.to_csv(folder + titles[3] + '.tsv', sep='\t', index=False)
+
+
 plt.rcParams["figure.figsize"] = (6,6)
-ax1=plt.subplot(2, 2, 1)
-plt.plot(torch.flatten(prediction2.data, 0), torch.flatten(prediction1.data, 0), 'o', color='black')
+plt.figure()
+for i in range(len(titles)):
+    plt.subplot(2, 2, 1+i)
+    df = pandas.read_csv(folder + titles[i] + '.tsv', sep='\t')
+    plt.plot(df['steady state'], df['autograd'], 'o', color='black')
 
-plt.title('Prediction')
-plt.xlabel('steady state')
-plt.ylabel('autograd')
-plotting.lineOfIdentity()
-#print(torch.flatten(prediction1.data, 0)- torch.flatten(prediction2.data, 0))
+    plt.xlabel('steady state')
+    plt.ylabel('autograd')
+    plt.gca().axis('equal')
 
+    plotting.lineOfIdentity()
+    plt.title(titles[i])
 
-ax1=plt.subplot(2, 2, 2)
-plt.plot(torch.flatten(input2.grad, 0), torch.flatten(input1.grad, 0), 'o', color='black')
-plt.title('Input gradient')
-plt.xlabel('steady state')
-plt.ylabel('autograd')
-plotting.lineOfIdentity()
-#print(torch.flatten(prediction1.data, 0)- torch.flatten(prediction2.data, 0))
-
-ax1=plt.subplot(2, 2, 3)
-plt.plot(net2.weights.grad, gradWeights.values(), 'o', color='black')
-plt.title('Weight gradient')
-plt.xlabel('steady state')
-plt.ylabel('autograd')
-plotting.lineOfIdentity()
-#print(net1.bias.grad-net2.bias.grad)
-
-ax2=plt.subplot(2, 2, 4)
-plt.plot(net2.bias.grad, net1.bias.grad, 'o', color='black')
-plt.title('Bias gradient')
-plt.xlabel('steady state')
-plt.ylabel('autograd')
-plotting.lineOfIdentity()
 plt.tight_layout()
+plt.savefig(folder + 'fig.svg')
+
+
 
 # =============================================================================
 # plt.figure

@@ -13,6 +13,8 @@ def updateIndexName(df, dictionary):
     df.index = allIndex
     return df
 
+folder = '../model/figures/SI Figure 16/'
+
 #%%
 stimName = 'LPS'
 controlName = 'PBS-BSA'
@@ -92,23 +94,25 @@ plt.rcParams["figure.figsize"] = (7,20)
 df = pd.DataFrame(outputStd.T, columns = allTFs, index=conditionsPlusN)
 order = numpy.argsort(numpy.percentile(df.values, 75, axis=0))
 df = df.iloc[:,order]
-ax = sns.boxplot(data=df, orient='h', showfliers=False)
+ax = sns.boxplot(data=df, orient='h', showfliers=False, color='#71bae2')
 ax = sns.stripplot(data=df, orient='h', color = 'black')
 leftRight = plt.ylim()
 plt.plot([consistencyCutOf, consistencyCutOf], [leftRight[0], leftRight[1]], color='black')
 ax.set_title('TF consistency')
 plt.xlabel('STD')
 plt.savefig("figures/TFSTD.svg") 
+plt.savefig(folder + 'B.svg')
+df.to_csv(folder + 'data.tsv', sep='\t')
 
 plt.figure()
 order = numpy.argsort(numpy.percentile(df.values, 75, axis=1))
 df = df.iloc[order,:]
-ax = sns.boxplot(data=df.T, orient='h', showfliers=False)
+ax = sns.boxplot(data=df.T, orient='h', showfliers=False, color='#71bae2')
 ax = sns.stripplot(data=df.T, orient='h', color = 'black')
 ax.set_title('Condition consistency')
 plt.xlabel('STD')
 plt.savefig("figures/ConditionSTD.svg") 
-
+plt.savefig(folder + 'A.svg')
 
 df = pd.DataFrame(outputs, index = allTFs, columns = allConditions)
 

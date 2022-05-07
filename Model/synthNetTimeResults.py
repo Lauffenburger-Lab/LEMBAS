@@ -9,6 +9,7 @@ from scipy.stats import pearsonr
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 
+folder = 'figures/SI Figure 10/'
 
 #Get data number
 testCondtions = pandas.read_csv('synthNetTime/conditions.tsv', sep='\t', low_memory=False)
@@ -18,10 +19,14 @@ dataSize = testCondtions['DataSize'].values
 plt.rcParams["figure.figsize"] = (3,3)
 timeToSample = numpy.zeros((nExperiments, 2))
 
+numberOfTimesteps = 10000
+data = numpy.zeros((nExperiments, numberOfTimesteps))
 for i in range(nExperiments):
     curResults = pandas.read_csv('synthNetTime/generalResults_' + str(i) + '.tsv', low_memory=False, sep='\t')
     curResults['deltaT'] =  curResults['stop'] - curResults['start']
-    curResults = curResults.loc[curResults['index']<10000]
+    curResults = curResults.loc[curResults['index']<numberOfTimesteps]
+    data[i,:] = curResults['deltaT']
+    
     timeToSample[i, 0] = numpy.mean(curResults['deltaT'])
     timeToSample[i, 1] = numpy.std(curResults['deltaT'])
 
@@ -30,9 +35,12 @@ plt.xscale('log', base=10)
 plt.ylim(bottom=0)
 plt.xlabel('number of samples')
 plt.ylabel('time per batch [s]')
-plt.savefig("figures/samplesVsTime/timePerBatch.svg")
+plt.savefig(folder + 'B.svg')
+df = pandas.DataFrame(data.T, columns=dataSize)
+df.to_csv(folder + 'B.tsv', sep='\t')
 
 
+#%%
 plt.figure()
 for i in range(nExperiments):
     curResults = pandas.read_csv('synthNetTime/targetedEvaluation_' + str(i) + '.tsv', low_memory=False, sep='\t')
@@ -113,7 +121,10 @@ plt.xlabel('data size')
 plt.ylim(bottom=0)
 plt.ylabel('iterations')
 plt.legend(fitnessLevels, frameon=False)
-plt.savefig("figures/samplesVsTime/iterationsPerFitness.svg")
+plt.savefig(folder + 'C.svg')
+
+df = pandas.DataFrame(results, columns=fitnessLevels, index=dataSize)
+df.to_csv(folder + 'C.tsv', sep='\t')
 
 #%%
 
