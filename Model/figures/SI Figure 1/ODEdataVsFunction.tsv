@@ -1,0 +1,193 @@
+Data	Function	Rep	Type	Value
+independentActivation.tsv	A	0	r	0.999999685
+independentActivation.tsv	A	0	Param 1	0.54149684
+independentActivation.tsv	A	0	Param 2	0.270628087
+independentActivation.tsv	A	0	Param 3	0.540967369
+independentActivation.tsv	A	1	r	0.999999811
+independentActivation.tsv	A	1	Param 1	0.41318394
+independentActivation.tsv	A	1	Param 2	0.206557299
+independentActivation.tsv	A	1	Param 3	0.413011853
+independentActivation.tsv	A	2	r	0.999999717
+independentActivation.tsv	A	2	Param 1	0.512299482
+independentActivation.tsv	A	2	Param 2	0.256253879
+independentActivation.tsv	A	2	Param 3	0.512678805
+independentActivation.tsv	I	0	r	0.649914367
+independentActivation.tsv	I	0	Param 1	0.886771648
+independentActivation.tsv	I	0	Param 2	0.214572851
+independentActivation.tsv	I	0	Param 3	9.06e-05
+independentActivation.tsv	I	1	r	0.650019757
+independentActivation.tsv	I	1	Param 1	0.992455327
+independentActivation.tsv	I	1	Param 2	0.240231086
+independentActivation.tsv	I	1	Param 3	1.33e-06
+independentActivation.tsv	I	2	r	0.650232742
+independentActivation.tsv	I	2	Param 1	0.995428204
+independentActivation.tsv	I	2	Param 2	0.242428561
+independentActivation.tsv	I	2	Param 3	3.53e-07
+independentActivation.tsv	CA	0	r	0.837301558
+independentActivation.tsv	CA	0	Param 1	0.610986814
+independentActivation.tsv	CA	0	Param 2	0.057714873
+independentActivation.tsv	CA	1	r	0.837270523
+independentActivation.tsv	CA	1	Param 1	0.903755788
+independentActivation.tsv	CA	1	Param 2	0.08518802
+independentActivation.tsv	CA	2	r	0.837213895
+independentActivation.tsv	CA	2	Param 1	0.763707908
+independentActivation.tsv	CA	2	Param 2	0.071765955
+independentActivation.tsv	CI	0	r	0.650045319
+independentActivation.tsv	CI	0	Param 1	0.698828611
+independentActivation.tsv	CI	0	Param 2	0.169320263
+independentActivation.tsv	CI	0	Param 3	4.96e-05
+independentActivation.tsv	CI	0	Param 4	0.677961661
+independentActivation.tsv	CI	1	r	0.650131993
+independentActivation.tsv	CI	1	Param 1	0.949389684
+independentActivation.tsv	CI	1	Param 2	0.230520229
+independentActivation.tsv	CI	1	Param 3	8.42e-06
+independentActivation.tsv	CI	1	Param 4	0.999669639
+independentActivation.tsv	CI	2	r	0.649906718
+independentActivation.tsv	CI	2	Param 1	0.916095736
+independentActivation.tsv	CI	2	Param 2	0.221453886
+independentActivation.tsv	CI	2	Param 3	0.000137972
+independentActivation.tsv	CI	2	Param 4	0.434215778
+independentDeActivation.tsv	A	0	r	0.61646204
+independentDeActivation.tsv	A	0	Param 1	0.364194863
+independentDeActivation.tsv	A	0	Param 2	0.670747818
+independentDeActivation.tsv	A	0	Param 3	3.19e-06
+independentDeActivation.tsv	A	1	r	0.616346836
+independentDeActivation.tsv	A	1	Param 1	0.492755498
+independentDeActivation.tsv	A	1	Param 2	0.903108827
+independentDeActivation.tsv	A	1	Param 3	2.65e-05
+independentDeActivation.tsv	A	2	r	0.616383725
+independentDeActivation.tsv	A	2	Param 1	0.442559878
+independentDeActivation.tsv	A	2	Param 2	0.811004682
+independentDeActivation.tsv	A	2	Param 3	7.69e-07
+independentDeActivation.tsv	I	0	r	0.999978985
+independentDeActivation.tsv	I	0	Param 1	0.957494929
+independentDeActivation.tsv	I	0	Param 2	0.480511991
+independentDeActivation.tsv	I	0	Param 3	0.954320113
+independentDeActivation.tsv	I	1	r	0.999978766
+independentDeActivation.tsv	I	1	Param 1	0.662750935
+independentDeActivation.tsv	I	1	Param 2	0.332395007
+independentDeActivation.tsv	I	1	Param 3	0.660599029
+independentDeActivation.tsv	I	2	r	0.999978929
+independentDeActivation.tsv	I	2	Param 1	0.680644944
+independentDeActivation.tsv	I	2	Param 2	0.341534303
+independentDeActivation.tsv	I	2	Param 3	0.67839635
+independentDeActivation.tsv	CA	0	r	-0.119983815
+independentDeActivation.tsv	CA	0	Param 1	0.428197637
+independentDeActivation.tsv	CA	0	Param 2	0.967117051
+independentDeActivation.tsv	CA	1	r	-0.120041458
+independentDeActivation.tsv	CA	1	Param 1	0.404896785
+independentDeActivation.tsv	CA	1	Param 2	0.925161211
+independentDeActivation.tsv	CA	2	r	-0.120134538
+independentDeActivation.tsv	CA	2	Param 1	0.382498641
+independentDeActivation.tsv	CA	2	Param 2	0.888226892
+independentDeActivation.tsv	CI	0	r	0.913380663
+independentDeActivation.tsv	CI	0	Param 1	0.523738486
+independentDeActivation.tsv	CI	0	Param 2	0.227463142
+independentDeActivation.tsv	CI	0	Param 3	0.976837403
+independentDeActivation.tsv	CI	0	Param 4	0.111075713
+independentDeActivation.tsv	CI	1	r	0.912970389
+independentDeActivation.tsv	CI	1	Param 1	0.866907236
+independentDeActivation.tsv	CI	1	Param 2	0.37174091
+independentDeActivation.tsv	CI	1	Param 3	0.994550924
+independentDeActivation.tsv	CI	1	Param 4	0.111001579
+independentDeActivation.tsv	CI	2	r	0.912994207
+independentDeActivation.tsv	CI	2	Param 1	0.490578907
+independentDeActivation.tsv	CI	2	Param 2	0.210082779
+independentDeActivation.tsv	CI	2	Param 3	0.993587099
+independentDeActivation.tsv	CI	2	Param 4	0.110955811
+cooperativeActivation.tsv	A	0	r	0.883706329
+cooperativeActivation.tsv	A	0	Param 1	0.453936938
+cooperativeActivation.tsv	A	0	Param 2	0.628094503
+cooperativeActivation.tsv	A	0	Param 3	0.551432267
+cooperativeActivation.tsv	A	1	r	0.875492842
+cooperativeActivation.tsv	A	1	Param 1	0.344206842
+cooperativeActivation.tsv	A	1	Param 2	0.535736751
+cooperativeActivation.tsv	A	1	Param 3	0.508498116
+cooperativeActivation.tsv	A	2	r	0.884135743
+cooperativeActivation.tsv	A	2	Param 1	0.530389718
+cooperativeActivation.tsv	A	2	Param 2	0.742589932
+cooperativeActivation.tsv	A	2	Param 3	0.644542256
+cooperativeActivation.tsv	I	0	r	0.683866625
+cooperativeActivation.tsv	I	0	Param 1	0.998697929
+cooperativeActivation.tsv	I	0	Param 2	0.583035315
+cooperativeActivation.tsv	I	0	Param 3	7.02e-06
+cooperativeActivation.tsv	I	1	r	0.683967938
+cooperativeActivation.tsv	I	1	Param 1	0.945589937
+cooperativeActivation.tsv	I	1	Param 2	0.546248332
+cooperativeActivation.tsv	I	1	Param 3	3.29e-07
+cooperativeActivation.tsv	I	2	r	0.684014474
+cooperativeActivation.tsv	I	2	Param 1	0.555886968
+cooperativeActivation.tsv	I	2	Param 2	0.319835508
+cooperativeActivation.tsv	I	2	Param 3	1.43e-09
+cooperativeActivation.tsv	CA	0	r	0.99999966
+cooperativeActivation.tsv	CA	0	Param 1	0.966713084
+cooperativeActivation.tsv	CA	0	Param 2	0.193452317
+cooperativeActivation.tsv	CA	1	r	0.999999695
+cooperativeActivation.tsv	CA	1	Param 1	0.567339598
+cooperativeActivation.tsv	CA	1	Param 2	0.113532217
+cooperativeActivation.tsv	CA	2	r	0.999999661
+cooperativeActivation.tsv	CA	2	Param 1	0.846915933
+cooperativeActivation.tsv	CA	2	Param 2	0.169482834
+cooperativeActivation.tsv	CI	0	r	0.684093423
+cooperativeActivation.tsv	CI	0	Param 1	0.712187285
+cooperativeActivation.tsv	CI	0	Param 2	0.405088944
+cooperativeActivation.tsv	CI	0	Param 3	1.36e-06
+cooperativeActivation.tsv	CI	0	Param 4	0.417180644
+cooperativeActivation.tsv	CI	1	r	0.683999576
+cooperativeActivation.tsv	CI	1	Param 1	0.377245093
+cooperativeActivation.tsv	CI	1	Param 2	0.216823589
+cooperativeActivation.tsv	CI	1	Param 3	9.43e-16
+cooperativeActivation.tsv	CI	1	Param 4	1.0
+cooperativeActivation.tsv	CI	2	r	0.683999578
+cooperativeActivation.tsv	CI	2	Param 1	0.326435845
+cooperativeActivation.tsv	CI	2	Param 2	0.187620685
+cooperativeActivation.tsv	CI	2	Param 3	7.99e-14
+cooperativeActivation.tsv	CI	2	Param 4	1.0
+competitiveInhibition.tsv	A	0	r	0.597829338
+competitiveInhibition.tsv	A	0	Param 1	0.688592102
+competitiveInhibition.tsv	A	0	Param 2	0.984020877
+competitiveInhibition.tsv	A	0	Param 3	6.39e-12
+competitiveInhibition.tsv	A	1	r	0.597843863
+competitiveInhibition.tsv	A	1	Param 1	0.695973355
+competitiveInhibition.tsv	A	1	Param 2	0.98859888
+competitiveInhibition.tsv	A	1	Param 3	6.69e-10
+competitiveInhibition.tsv	A	2	r	0.59783329
+competitiveInhibition.tsv	A	2	Param 1	0.548444566
+competitiveInhibition.tsv	A	2	Param 2	0.781964889
+competitiveInhibition.tsv	A	2	Param 3	5.46e-08
+competitiveInhibition.tsv	I	0	r	0.896439739
+competitiveInhibition.tsv	I	0	Param 1	0.557032374
+competitiveInhibition.tsv	I	0	Param 2	0.253239084
+competitiveInhibition.tsv	I	0	Param 3	0.625118718
+competitiveInhibition.tsv	I	1	r	0.871347686
+competitiveInhibition.tsv	I	1	Param 1	0.470471871
+competitiveInhibition.tsv	I	1	Param 2	0.284370775
+competitiveInhibition.tsv	I	1	Param 3	0.374900411
+competitiveInhibition.tsv	I	2	r	0.896263976
+competitiveInhibition.tsv	I	2	Param 1	0.420555747
+competitiveInhibition.tsv	I	2	Param 2	0.189652286
+competitiveInhibition.tsv	I	2	Param 3	0.471234191
+competitiveInhibition.tsv	CA	0	r	-0.145999487
+competitiveInhibition.tsv	CA	0	Param 1	0.46151954
+competitiveInhibition.tsv	CA	0	Param 2	0.767926181
+competitiveInhibition.tsv	CA	1	r	-0.146220261
+competitiveInhibition.tsv	CA	1	Param 1	0.460166523
+competitiveInhibition.tsv	CA	1	Param 2	0.740294743
+competitiveInhibition.tsv	CA	2	r	-0.14619535
+competitiveInhibition.tsv	CA	2	Param 1	0.259243281
+competitiveInhibition.tsv	CA	2	Param 2	0.418435085
+competitiveInhibition.tsv	CI	0	r	0.999999317
+competitiveInhibition.tsv	CI	0	Param 1	0.389467997
+competitiveInhibition.tsv	CI	0	Param 2	0.07790005
+competitiveInhibition.tsv	CI	0	Param 3	0.968680044
+competitiveInhibition.tsv	CI	0	Param 4	0.048456271
+competitiveInhibition.tsv	CI	1	r	0.999999293
+competitiveInhibition.tsv	CI	1	Param 1	0.995569044
+competitiveInhibition.tsv	CI	1	Param 2	0.199131803
+competitiveInhibition.tsv	CI	1	Param 3	0.99579509
+competitiveInhibition.tsv	CI	1	Param 4	0.04981576
+competitiveInhibition.tsv	CI	2	r	0.999999306
+competitiveInhibition.tsv	CI	2	Param 1	0.913858255
+competitiveInhibition.tsv	CI	2	Param 2	0.182756548
+competitiveInhibition.tsv	CI	2	Param 3	0.990030934
+competitiveInhibition.tsv	CI	2	Param 4	0.049517735
