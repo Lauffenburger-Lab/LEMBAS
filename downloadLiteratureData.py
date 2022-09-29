@@ -45,9 +45,11 @@ print('Downloading our experimental data')
 url = 'https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE202515&format=file&file=GSE202515%5Fmetadata%2Etsv%2Egz'
 urllib.request.urlretrieve(url, 'TF activities Ligand Screen/data/metadata.gz')
 
-url = 'https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE202515&format=file&file=GSE202515%5Fcounts%2Eloom%2Egz'
-urllib.request.urlretrieve(url, 'TF activities Ligand Screen/data/Smartseq2_Multisample_human_single_2021-12-15T21-07-41.gz')
+# url = 'https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE202515&format=file&file=GSE202515%5Fcounts%2Eloom%2Egz'
+# urllib.request.urlretrieve(url, 'TF activities Ligand Screen/data/Smartseq2_Multisample_human_single_2021-12-15T21-07-41.gz')
 
+url = 'https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE202515&format=file&file=GSE202515%5Fcounts%2Etsv%2Egz'
+urllib.request.urlretrieve(url, 'TF activities Ligand Screen/filtered/GSE202515_counts.tsv.gz')
 
 print('Unziping data')
 shutil.unpack_archive('TF activities/raw/E-GEOD-46903.processed.1.zip', 'TF activities/raw/E-GEOD-46903.processed.1')
@@ -55,9 +57,10 @@ gunzip('Viability data/data CCLE/CCLE_RNAseq_genes_rpkm_20180929.gct.gz', 'Viabi
 shutil.unpack_archive('Viability data/processed data/supplement_code.zip', 'Viability data/processed data/')
 gunzip('TF activities Ligand Screen/data/Smartseq2_Multisample_human_single_2021-12-15T21-07-41.gz', 'TF activities Ligand Screen/data/Smartseq2_Multisample_human_single_2021-12-15T21-07-41.loom')
 gunzip('TF activities Ligand Screen/data/metadata.gz', 'TF activities Ligand Screen/data/metadata.csv')
+gunzip('TF activities Ligand Screen/filtered/GSE202515_counts.tsv.gz', 'TF activities Ligand Screen/filtered/counts.tsv')
 
 print('Moving files')
 shutil.copyfile('Viability data/processed data/supplement_code/results/preprocessed.mat', 'Viability data/preprocessed.mat')
 shutil.copyfile('Viability data/processed data/supplement_code/results/mutations.mat', 'Viability data/mutations.mat')
-
+shutil.copyfile('TF activities Ligand Screen/data/metadata.csv', 'TF activities Ligand Screen/filtered/metadata.csv')
 
