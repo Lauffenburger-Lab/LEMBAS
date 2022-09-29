@@ -2,25 +2,21 @@ library("dorothea")
 library("DESeq2")
 library("limma")
 
-setwd("C:/work/transcriptBarcoding/LigandScreenLoom")
+setwd("C:/work/publications/technologyPaper/Artificial-Signaling-Network/TF activities Ligand Screen")
 ##
 countData = read.table('filtered/counts.tsv', sep ='\t', stringsAsFactors = FALSE, header=TRUE, row.names=1)
-metaData = read.table('filtered/metaData.tsv', sep ='\t', stringsAsFactors = FALSE, header=TRUE)
+metaData = read.table('filtered/metadata.tsv', sep ='\t', stringsAsFactors = FALSE, header=TRUE)
 
-
-colData = data.frame(metaData[,'uniqueId'])
-colData$condition = factor(metaData$stim)
+colData = data.frame(metaData$library.name)
+colData$condition = factor(metaData$lps.stimulation)
 colData$donor = factor(metaData$donor)
-colData$plate = factor(metaData$sample_plate)
+colData$plate = factor(metaData$plate)
 #colData$class = factor(metaData$class)
 colData$ligand = factor(metaData$ligand)
-rownames(colData) = metaData[,'uniqueId']
+rownames(colData) = metaData$library.name
+colData = colData[colnames(countData), ]
 
 mm = model.matrix(~condition + ligand, colData)
-
-
-
-
 
 ddsTxi <- DESeqDataSetFromMatrix(countData=round(countData), colData=colData, design=mm)
 ddsTxi = estimateSizeFactors(ddsTxi)
