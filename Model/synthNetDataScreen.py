@@ -39,13 +39,13 @@ inName = annotation.loc[annotation['ligand'],'code'].values
 outName = annotation.loc[annotation['TF'],'code'].values
 inName = numpy.intersect1d(nodeNames, inName)
 outName = numpy.intersect1d(nodeNames, outName)
-model = bionetwork.model(networkList, nodeNames, modeOfAction, inputAmplitude, projectionAmplitude, inName, outName, bionetParams, torch.double)
+model = bionetwork.model(networkList, nodeNames, modeOfAction, inputAmplitude, projectionAmplitude, inName, outName, bionetParams, 'MML', torch.double)
 model.inputLayer.weights.requires_grad = False
 model.projectionLayer.weights.requires_grad = False
 model.network.preScaleWeights()
 
 
-parameterizedModel = bionetwork.model(networkList, nodeNames, modeOfAction, inputAmplitude, projectionAmplitude, inName, outName, bionetParams, torch.double)
+parameterizedModel = bionetwork.model(networkList, nodeNames, modeOfAction, inputAmplitude, projectionAmplitude, inName, outName, bionetParams, 'MML', torch.double)
 parameterizedModel = bionetwork.loadParam('synthNetScreen/equationParams.txt', parameterizedModel, nodeNames)
 
 
@@ -108,7 +108,7 @@ for e in range(e, maxIter):
         biasLoss = 1e-8 * torch.sum(torch.square(model.network.bias))
         weightLoss = 1e-8 * (torch.sum(torch.square(model.network.weights)) + torch.sum(1/(torch.square(model.network.weights) + 0.5)))
 
-        spectralRadiusLoss, spectralRadius = bionetwork.spectralLoss(model, YhatFull, model.network.weights, expFactor = 21)
+        spectralRadiusLoss, spectralRadius = bionetwork.spectralLoss(model.network, YhatFull, model.network.weights, expFactor = 21)
 
         loss = fitLoss + signConstraint + ligandConstraint + weightLoss + biasLoss + spectralFactor * spectralRadiusLoss + stateLoss# + rangeAplification + stdAmplification + meanAmplification +
 
