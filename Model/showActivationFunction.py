@@ -1,4 +1,4 @@
-import bionetwork
+import activationFunctions
 import numpy
 import matplotlib.pyplot as plt
 
@@ -6,10 +6,10 @@ import matplotlib.pyplot as plt
 leak = 0.01
 
 x = numpy.linspace(-2, 3, 1001)
-y = bionetwork.activation(x.copy(), leak)
+y = activationFunctions.MMLactivation(x.copy(), leak)
 
-x2 = numpy.linspace(0, 1, 10)
-y2 = bionetwork.activation(x2.copy(), leak)
+# x2 = numpy.linspace(0, 1, 10)
+# y2 = activationFunctions.MMLactivation(x2.copy(), leak)
 
 plt.rcParams["figure.figsize"] = (3,3)
 plt.plot(x, y)
