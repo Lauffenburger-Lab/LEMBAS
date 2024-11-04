@@ -732,11 +732,19 @@ def lreig(A):
     #     v = v/norm(v)
     return eValue, v, w
 
-def getRandomNet(networkSize, sparsity):
-    network = scipy.sparse.random(networkSize, networkSize, sparsity)
+def getRandomNet(networkSize, sparsity, seed=None):
+    network = scipy.sparse.random(networkSize, networkSize, sparsity, random_state=seed)
     scipy.sparse.lil_matrix.setdiag(network, 0)
+    
+    #Apply quick fix to find
+    
     networkList = scipy.sparse.find(network)
-    networkList = numpy.array((networkList[1], networkList[0])) #we flip the network for rowise ordering
+  
+    networkList = numpy.array(networkList)
+    networkList = networkList[[1, 0],:].astype(numpy.int32)
+    order = numpy.argsort(networkList[0, :], kind='Stable')
+    networkList = numpy.squeeze(networkList[:, order])
+ 
     nodeNames = [str(x+1) for x in range(networkSize)]
     #weights = torch.from_numpy(networkList[2])
     return networkList, nodeNames
@@ -770,8 +778,8 @@ def makeNetworkList(sources, targets, weights):
     #print(networkList)
     #This is a workaround for a bug observed with newer versions of the packages.
     #Newer versions have a different ordering of the elements comming out of find A
-    networkList = numpy.array(networkList, int)
-    order = numpy.argsort(networkList[1,:])
+    networkList = numpy.array(networkList, numpy.int32)
+    order = numpy.argsort(networkList[1,:], kind='Stable')
     networkList = numpy.squeeze(networkList[:,order])
     weights = numpy.squeeze(networkList[2,:])
     #networkList = numpy.array((networkList[1], networkList[0]))  #0 == Target 1 == Source due to numpy sparse matrix structure

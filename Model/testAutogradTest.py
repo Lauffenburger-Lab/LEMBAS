@@ -5,41 +5,33 @@ import numpy
 import plotting
 import time
 import pandas
+import saveSimulations
 
 batchsize = 5
 activationFunction = 'MML'
 
 
-
-
 parameters = bionetwork.trainingParameters(iterations=150, clipping=1)
-
-
-networkSize = 10
+networkSize = 100
 batchsize = 5
-seed = 15
-networkList, nodeNames = bionetwork.getRandomNet(networkSize, 0.5, seed)
-#networkList =tmp2
+#networkList, nodeNames = bionetwork.getRandomNet(networkSize, 0.5)
+#MOA = numpy.full(networkList.shape, False, dtype=bool)
 
-# networkList = numpy.array([[0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5,
-#         5, 5, 5, 6, 6, 6, 6, 6, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9,
-#         9],
-#        [3, 6, 8, 9, 3, 4, 6, 8, 0, 1, 4, 5, 0, 6, 8, 3, 5, 6, 8, 1, 2, 4,
-#         7, 8, 9, 1, 3, 4, 7, 9, 0, 6, 8, 9, 1, 4, 7, 9, 0, 2, 3, 4, 6, 7,
-#         8]])
-
-MOA = numpy.full(networkList.shape, False, dtype=bool)
-
-input1 = torch.randn(batchsize, len(nodeNames), dtype=torch.double, requires_grad=True)
+input1 = torch.randn(batchsize, networkSize, dtype=torch.double, requires_grad=True)
 input2 = input1.clone().detach().requires_grad_(True)
 
-print(networkList)
+#net1 = bionetwork.bionetworkAutoGrad(networkList, len(nodeNames), parameters['iterations'])
+#net2 = bionetwork.bionet(networkList, len(nodeNames), MOA, parameters, activationFunction, torch.double)
 
-net1 = bionetwork.bionetworkAutoGrad(networkList, len(nodeNames), parameters['iterations'])
-net2 = bionetwork.bionet(networkList, len(nodeNames), MOA, parameters, activationFunction, torch.double)
+net1 = torch.load('testAutogradModel/Model-Autograd.pt')
+net2 = torch.load('testAutogradModel/Model-Bionet.pt')
 
-net2.weights.data = net1.A.values.data.detach().clone()
-net2.bias.data = net1.bias.data.detach().clone()
+#net2.weights.data = net1.A.coalesce().values().data.clone()
+#net2.bias.data = net1.bias.data.detach().clone()
+#saveSimulations.save('simulations', 'parameterTest', {'Model-Autograd':net1,  'Model-Bionet':net2})
+#plt.scatter(net2.weights.data.detach().numpy().flatten(), net1.A.coalesce().values().data.detach().numpy().flatten())
+#plt.scatter(net2.bias.data.detach().numpy().flatten(), net1.bias.data.detach().numpy().flatten())
+
 
 criterion = torch.nn.MSELoss()
 prediction1 = net1(input1)
@@ -50,7 +42,7 @@ predictionForLoss.requires_grad = False
 start = time.time()
 loss1 = criterion(prediction1, predictionForLoss)
 a = loss1.backward()
-gradWeights = net1.A.grad.coalesce()
+gradWeights = net1.A.grad.coalesce().detach().values().numpy().flatten()
 print(time.time() - start)
 
 start = time.time()
@@ -76,7 +68,7 @@ df.to_csv(folder + titles[0] + '.tsv', sep='\t', index=False)
 df = pandas.DataFrame((input2.grad.detach().numpy().flatten(), input1.grad.detach().numpy().flatten()), index=['steady state', 'autograd']).T
 df.to_csv(folder + titles[1] + '.tsv', sep='\t', index=False)
 
-df = pandas.DataFrame((net2.weights.grad.numpy().flatten(), gradWeights.values().numpy().flatten()), index=['steady state', 'autograd']).T
+df = pandas.DataFrame((net2.weights.grad.numpy().flatten(), gradWeights), index=['steady state', 'autograd']).T
 df.to_csv(folder + titles[2] + '.tsv', sep='\t', index=False)
 
 df = pandas.DataFrame((net2.bias.grad.numpy().flatten(), net1.bias.grad.numpy().flatten()), index=['steady state', 'autograd']).T
