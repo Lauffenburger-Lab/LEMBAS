@@ -766,9 +766,16 @@ def makeNetworkList(sources, targets, weights):
     targetNr = numpy.array([dictionary[x] for x in targets]) #rows
     size = len(nodeNames)
     A = scipy.sparse.csr_matrix((weights, (sourceNr, targetNr)), shape=(size, size))
-    networkList = scipy.sparse.find(A)
-    weights = networkList[2]
-    networkList = numpy.array((networkList[1], networkList[0]))  #0 == Target 1 == Source due to numpy sparse matrix structure
+    networkList = scipy.sparse.find(A)    
+    print(networkList)
+    #This is a workaround for a bug observed with newer versions of the packages.
+    #Newer versions have a different ordering of the elements comming out of find A
+    networkList = numpy.array(networkList, int)
+    order = numpy.argsort(networkList[1,:])
+    networkList = numpy.squeeze(networkList[:,order])
+    weights = numpy.squeeze(networkList[2,:])
+    #networkList = numpy.array((networkList[1], networkList[0]))  #0 == Target 1 == Source due to numpy sparse matrix structure
+    networkList = networkList[[1, 0],:]
     return networkList, nodeNames, weights
 
 
