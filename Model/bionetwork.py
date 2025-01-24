@@ -744,7 +744,8 @@ def getRandomNet(networkSize, sparsity, seed=None):
     networkList = networkList[[1, 0],:].astype(numpy.int32)
     order = numpy.argsort(networkList[0, :], kind='Stable')
     networkList = numpy.squeeze(networkList[:, order])
- 
+    networkList = networkList[[1, 0],:]
+    
     nodeNames = [str(x+1) for x in range(networkSize)]
     #weights = torch.from_numpy(networkList[2])
     return networkList, nodeNames
